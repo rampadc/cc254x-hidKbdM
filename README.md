@@ -18,6 +18,8 @@ keyfob, HM-10 variant that uses CC2540 (to be tested soon)
 To flash the firmware onto the chip, CC Debugger ($49) from Texas Instruments need to be used with 
 SmartRF Flash Programmer (free). 
 
+To customize the firmare, IAR Embedded Workspace for 8051 is needed. 
+
 The source code included needs to be copied into a folder created inside TI's official BLE API 1.4's
 Project folder as the INCLUDES defined in the Preprocessor are set up for this. The official API was 
 not included in the project as the license agreement does not allow this.
