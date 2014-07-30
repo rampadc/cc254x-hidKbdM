@@ -1,6 +1,3 @@
-cc2540-hidKbdM
-==============
-
 # Overview
 This is a firmware for Texas Instruments CC2540 Bluetooth Low Energy microcontroller that sends
 keyboard and mouse reports via Bluetooth to the host. The commands to control the reports are sent
