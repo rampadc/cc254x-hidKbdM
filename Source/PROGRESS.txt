@@ -1,0 +1,14 @@
+hidKbdMouse.c
+- Removed    
+    In Macros:
+      // Selected HID keycodes
+      #define KEY_RIGHT_ARROW             0x4F
+      #define KEY_LEFT_ARROW              0x50
+      #define KEY_NONE                    0x00
+      // Selected HID mouse button values
+      #define MOUSE_BUTTON_1              0x01
+      #define MOUSE_BUTTON_NONE           0x00
+- Added:
+    In Includes:        
+      #include "KBD_HUT.h"
+      #include "MOUSE_DEF.h"
