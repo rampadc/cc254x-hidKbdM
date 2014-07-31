@@ -8,6 +8,7 @@ These includes:
 + KD(keycode): a key is pressed with the keycode (keycode)
 + M(status)(X)(Y)(Z): sending mouse buttons and mouse coordinates
 + KUPDATE: send report to host
+
 (___) is an 8-byte character, in which only the value inside the brackets are needed (not including
 brackets)
 
