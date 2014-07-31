@@ -113,7 +113,9 @@
 #define DEFAULT_BONDING_MODE                  TRUE
 
 // Default GAP bonding I/O capabilities
-#define DEFAULT_IO_CAPABILITIES               GAPBOND_IO_CAP_KEYBOARD_ONLY
+
+//#define DEFAULT_IO_CAPABILITIES               GAPBOND_IO_CAP_KEYBOARD_ONLY
+#define DEFAULT_IO_CAPABILITIES               GAPBOND_IO_CAP_DISPLAY_ONLY
 
 // Battery level is critical when it is less than this %
 #define DEFAULT_BATT_CRITICAL_LEVEL           6
@@ -478,7 +480,7 @@ static void hidKbdMouse_HandleKeys( uint8 shift, uint8 keys )
     }
     else
     {
-     // hidKbdMouseSendMouseReport( MOUSE_BUTTON_1 );
+      // hidKbdMouseSendMouseReport( MOUSE_BUTTON_1 );
     }
     prevKey2 = 1;
   }
@@ -491,7 +493,7 @@ static void hidKbdMouse_HandleKeys( uint8 shift, uint8 keys )
     }
     else
     {
-  //    hidKbdMouseSendMouseReport ( MOUSE_BUTTON_NONE );
+      //    hidKbdMouseSendMouseReport ( MOUSE_BUTTON_NONE );
     }
     prevKey2 = 0;
   }
@@ -691,7 +693,12 @@ static void setupUART(void) {
   
   //start UART
   //assumes no issues with starting UART
+#if (HAL_UART_ISR == 1)
+  (void)HalUARTOpen(HAL_UART_PORT_0, &uartConfig);
+#else
   (void)HalUARTOpen(HAL_UART_PORT_1, &uartConfig);
+#endif
+  
   
   rxBuffer = osal_mem_alloc(8); //assumes there is no problem with getting this block of memory
 }
@@ -705,8 +712,14 @@ static void uartCallback(uint8 port, uint8 event) {
   case HAL_UART_RX_FULL:
   case HAL_UART_RX_ABOUT_FULL:
   case HAL_UART_RX_TIMEOUT:
+#if (HAL_UART_ISR == 1)
+    len = Hal_UART_RxBufLen(HAL_UART_PORT_0);
+    HalUARTRead(HAL_UART_PORT_0, buf, len);
+#else
     len = Hal_UART_RxBufLen(HAL_UART_PORT_1);
     HalUARTRead(HAL_UART_PORT_1, buf, len);
+#endif
+    
     for(i = 0; i < len; i++) {
       if((buf[i] != 0x0D) && (buf[i] != 0x0A)) rxBuffer[rxBufferIndex++] = buf[i];
       else {
@@ -721,7 +734,7 @@ static void uartCallback(uint8 port, uint8 event) {
 
 static void processBuffer(void) {
   //HalUARTWrite(HAL_UART_PORT_1, rxBuffer, rxBufferIndex);
-
+  
   switch(rxBufferIndex) {
   case 1: //app command
     //printf("One\r\n");

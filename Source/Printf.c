@@ -1,10 +1,9 @@
 /* 
- * File name: Printf.c
- * Description: Tiny Printf implementation for CC2540 UART based on oPossum's tiny printf()
- *
- * Author: Cong Nguyen
+	File name: Printf.c
+	Description: Tiny printf() implementation for CC2540 based on oPossum's tiny printf()
+	
+	Author: Cong Nguyen
 */
-
 
 #include "stdarg.h"
 #include "hal_uart.h"
@@ -12,7 +11,11 @@
 #include "hal_types.h"
 
 static void sendByte(unsigned char byte) {
-  HalUARTWrite(HAL_UART_PORT_0, &byte, 1); 
+#if (HAL_UART_ISR == 1)
+  HalUARTWrite(HAL_UART_PORT_0, &byte, 1);
+#else
+  HalUARTWrite(HAL_UART_PORT_1, &byte, 1);
+#endif
 }
 
 static void putc(unsigned char c) {
@@ -20,7 +23,11 @@ static void putc(unsigned char c) {
 }
 
 static void puts(uint8 *str) {
-  HalUARTWrite(HAL_UART_PORT_0, str, strlen((const char*)str)); 
+#if (HAL_UART_ISR == 1)
+  HalUARTWrite(HAL_UART_PORT_0, str, strlen((const char*)str));
+#else
+  HalUARTWrite(HAL_UART_PORT_1, str, strlen((const char*)str));
+#endif
 }
 
 static const unsigned long dv[] = {
