@@ -1,3 +1,11 @@
+/* 
+ * File name: Printf.c
+ * Description: Tiny Printf implementation for CC2540 UART based on oPossum's tiny printf()
+ *
+ * Author: Cong Nguyen
+*/
+
+
 #include "stdarg.h"
 #include "hal_uart.h"
 #include <string.h>
