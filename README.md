@@ -13,7 +13,9 @@ These includes:
 brackets)
 
 Pre-built firmwares are included as HEX files in the bin folder. These includes builds for TI CC2540
-keyfob, HM-10 variant that uses CC2540 (to be tested soon)
+keyfob, HM-10 variant that uses CC2540 (to be tested soon).
+
+Update 25/08/2014: Display-only (host enter passcode) firmware for CC2541 tested on a HM-10.
 
 # Setup
 To flash the firmware onto the chip, CC Debugger ($49) from Texas Instruments need to be used with 
