@@ -23,7 +23,8 @@ Pre-built firmwares are included as HEX files in the bin folder in CC2540DB and 
 
 # Setup
 To flash the firmware onto the chip, CC Debugger ($49) from Texas Instruments need to be used with 
-SmartRF Flash Programmer (free). 
+SmartRF Flash Programmer (free). Connection to HM-10 is as follows:
+![](https://flashandrc.files.wordpress.com/2014/08/connection.png)
 
 To customize the firmare, IAR Embedded Workspace for 8051 is needed. You may want to add:
     #include "bcomdef.h"
