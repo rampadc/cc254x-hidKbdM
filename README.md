@@ -1,36 +1,39 @@
 # Overview
 
-(This README is outdated. It will be updated soon)
-
 This is a firmware for Texas Instruments CC2540 Bluetooth Low Energy microcontroller that sends
 keyboard and mouse reports via Bluetooth to the host. The commands to control the reports are sent
 via UART at 57600 bps with 8 data bits and no parity bit.
 
-These includes:
-+ KU(keycode): a key is released with the keycode (keycode)
-+ KD(keycode): a key is pressed with the keycode (keycode)
-+ M(status)(X)(Y)(Z): sending mouse buttons and mouse coordinates
+The device operates in 2 modes: command mode and translation mode.
+
+In command mode, the device parse commands sent by the host that are followed by a CR or LF character. The list of commands implemented is listed below:
++ KU<value>: a key is released with an 8-bit value that corresponds to a HID keycode
++ KD<value>: a key is pressed with an 8-bit value that corresponds to a HID keycode
++ M<status><X><Y><Z>: sending mouse buttons and mouse coordinates
 + KUPDATE: send report to host
++ S,R: reset the device
++ S,DC: disconnect from host
 
-(___) is an 8-byte character, in which only the value inside the brackets are needed (not including
-brackets)
+In translation mode, the device automatically translate ASCII characters to HID keycodes and emulate the key being pressed and released. The characters being covered is currently limited to the first 128 ASCII characters. Other keys like F1-F12, PrintScreen, etc. can only be sent in command mode.
 
-Pre-built firmwares are included as HEX files in the bin folder. These includes builds for TI CC2540
-keyfob, HM-10 variant that uses CC2540 (to be tested soon).
-
-Update 25/08/2014: Display-only (host enter passcode) firmware for CC2541 tested on a HM-10.
+Pre-built firmwares are included as HEX files in the bin folder in CC2540DB and CC2541DB. Since most HM-10 modules now use CC2541, firmware compilation has since been stopped. However, since they both share the same code base, you can compile the firmware yourself. The firmware compiled includes:
++ HM-10_CC254x_DisplayOnly.hex: Early release, to-be-updated soon. (5/8/2014)
++ HM-10_CC254x_KeyboardOnly.hex: Early release, to be updated soon (5/8/2014)
++ HM-10_CC2541_Experimental.hex: Firmware that supports command mode and translation mode. Passcode 000000. (9/10/2014)
 
 # Setup
 To flash the firmware onto the chip, CC Debugger ($49) from Texas Instruments need to be used with 
 SmartRF Flash Programmer (free). 
 
-To customize the firmare, IAR Embedded Workspace for 8051 is needed. 
+To customize the firmare, IAR Embedded Workspace for 8051 is needed. You may want to add:
+    #include "bcomdef.h"
+    #include "gatt.h"
+into hiddev.h to correct some compilation errors, as shown in the photo below:
+![](https://flashandrc.files.wordpress.com/2014/10/hiddev_adding_includes.png)
 
 The source code included needs to be copied into a folder created inside TI's official BLE API 1.4's
 Project folder as the INCLUDES defined in the Preprocessor are set up for this. The official API was 
 not included in the project as the license agreement does not allow this.
-
-This repository includes the "last-known might-be-working" version of the firmware.
 
 # License
 
