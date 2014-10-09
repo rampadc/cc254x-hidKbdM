@@ -35,6 +35,7 @@ into hiddev.h to correct some compilation errors, as shown in the photo below:
 The source code included needs to be copied into a folder created inside TI's official BLE API 1.4's
 Project folder as the INCLUDES defined in the Preprocessor are set up for this. The official API was 
 not included in the project as the license agreement does not allow this.
+![](http://flashandrc.files.wordpress.com/2014/10/folder-struct.png)
 
 # License
 
