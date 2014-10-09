@@ -1,10 +1,3 @@
-/* 
-	File name: Printf.c
-	Description: Tiny printf() implementation for CC2540 based on oPossum's tiny printf()
-	
-	Author: Cong Nguyen
-*/
-
 #include "stdarg.h"
 #include "hal_uart.h"
 #include <string.h>

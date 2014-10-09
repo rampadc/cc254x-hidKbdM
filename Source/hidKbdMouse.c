@@ -1,21 +1,18 @@
-/* 
- * File name: hidKbdMouse.c
- * Description: Implementation of the application
- *
- * Copyright 2014 Cong Nguyen
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, 
- * software distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and limitations under the License. 
-*/
+/**************************************************************************************************
+Filename:       hidKbdMouse.c
 
+Description:    This file contains the HID emulated keyboard sample application
+for use with the CC2540 Bluetooth Low Energy Protocol Stack.
+
+Author:         CONG NGUYEN
+Last modified:  8/10/2014
+**************************************************************************************************/
+
+/*
+TO-DO:
+- Device broadcast at startup (unless chosen to connect to last paired)
+- Implement new command set
+*/
 
 /*********************************************************************
 * INCLUDES
@@ -45,6 +42,7 @@
 #include <string.h>
 
 #include "KBD_Report.h"
+#include "KBD_HUT.h"
 
 /*********************************************************************
 * MACROS
@@ -52,6 +50,7 @@
 
 //UART testing
 #define SBP_PERIODIC_EVT_PERIOD         50
+#define KEEP_CONNECTION_ALIVE_50s       50000
 
 // Selected HID keycodes
 #define KEY_RIGHT_ARROW             0x4F
@@ -211,8 +210,8 @@ static uint8 hidBootMouseEnabled = FALSE;
 */
 
 static void hidKbdMouse_ProcessOSALMsg( osal_event_hdr_t *pMsg );
-static void hidKbdMouse_HandleKeys( uint8 shift, uint8 keys );
-static void hidKbdMouseSendReport( uint8 keycode );
+//static void hidKbdMouse_HandleKeys( uint8 shift, uint8 keys );
+static void hidKbdMouseSendReport( uint8 modifier, uint8 keycode );
 static void hidKbdMouseSendMouseReport(uint8 buttons, int8 dx, int8 dy, int8 dz);
 static uint8 hidKbdMouseRcvReport( uint8 len, uint8 *pData );
 static uint8 hidKbdMouseRptCB( uint8 id, uint8 type, uint16 uuid,
@@ -225,7 +224,13 @@ static void uartCallback(uint8 port, uint8 event);
 static void performPeriodicTask(void);
 
 //Keyboard and mouse functions
-static void processBuffer(void);
+static void processCommands(void);
+static void sendKbdReportsWith(uint8 c);
+
+//uart-to-hid scan code
+static const uint8 asciiToKeycodes[128] = {
+  hutReserved,hutReserved,hutReserved,hutReserved,hutReserved,hutReserved,hutReserved,hutReserved,hutBackspace,hutTab,hutReserved,hutReserved,hutReserved,hutEnter,hutReserved,hutReserved,hutReserved,hutReserved,hutReserved,hutReserved,hutReserved,hutReserved,hutReserved,hutReserved,hutReserved,hutReserved,hutReserved,hutEscape,hutReserved,hutReserved,hutReserved,hutReserved,hutSpacebar,hut1,hutApostrophe,hut3,hut4,hut5,hut7,hutApostrophe,hut9,hut0,hut8,hutEqual,hutComma,hutMinus,hutPeriod,hutSlash,hut0,hut1,hut2,hut3,hut4,hut5,hut6,hut7,hut8,hut9,hutSemicolon,hutSemicolon,hutComma,hutEqual,hutPeriod,hutSlash,hut2,hutA,hutB,hutC,hutD,hutE,hutF,hutG,hutH,hutI,hutJ,hutK,hutL,hutM,hutN,hutO,hutP,hutQ,hutR,hutS,hutT,hutU,hutV,hutW,hutX,hutY,hutZ,hutLeftBracket,hutBackslash,hutRightBracket,hut6,hutMinus,hutTilde,hutA,hutB,hutC,hutD,hutE,hutF,hutG,hutH,hutI,hutJ,hutK,hutL,hutM,hutN,hutO,hutP,hutQ,hutR,hutS,hutT,hutU,hutV,hutW,hutX,hutY,hutZ,hutLeftBracket,hutBackslash,hutRightBracket,hutTilde,hutDeleteForward
+};
 
 /*********************************************************************
 * PROFILE CALLBACKS
@@ -265,7 +270,7 @@ void HidKbdMouse_Init( uint8 task_id )
   
   // Setup the GAP Peripheral Role Profile
   {
-    uint8 initial_advertising_enable = FALSE;
+    uint8 initial_advertising_enable = TRUE; //previously FALSE
     
     // By setting this to zero, the device will go into the waiting state after
     // being discoverable for 30.72 second, and will not being advertising again
@@ -294,6 +299,9 @@ void HidKbdMouse_Init( uint8 task_id )
   
   // Set the GAP Characteristics
   GGS_SetParameter( GGS_DEVICE_NAME_ATT, GAP_DEVICE_NAME_LEN, (void *) attDeviceName );
+  //Allow device to change name
+  uint8 devNamePermission = GATT_PERMIT_READ|GATT_PERMIT_WRITE; 
+  GGS_SetParameter( GGS_W_PERMIT_DEVICE_NAME_ATT, sizeof ( uint8 ), &devNamePermission );
   
   // Setup the GAP Bond Manager
   {
@@ -394,7 +402,7 @@ uint16 HidKbdMouse_ProcessEvent( uint8 task_id, uint16 events )
   if ( events & START_DEVICE_EVT )
   {
     // Set timer for first periodic event
-    osal_start_timerEx( hidKbdMouseTaskId, SBP_PERIODIC_EVT, SBP_PERIODIC_EVT_PERIOD );
+    osal_start_timerEx( hidKbdMouseTaskId, SBP_PERIODIC_EVT, KEEP_CONNECTION_ALIVE_50s );
     
     return ( events ^ START_DEVICE_EVT );
   }
@@ -403,9 +411,9 @@ uint16 HidKbdMouse_ProcessEvent( uint8 task_id, uint16 events )
   if ( events & SBP_PERIODIC_EVT )
   {
     // Restart timer
-    if ( SBP_PERIODIC_EVT_PERIOD )
+    if ( KEEP_CONNECTION_ALIVE_50s )
     {
-      osal_start_timerEx( hidKbdMouseTaskId, SBP_PERIODIC_EVT, SBP_PERIODIC_EVT_PERIOD );
+      osal_start_timerEx( hidKbdMouseTaskId, SBP_PERIODIC_EVT, KEEP_CONNECTION_ALIVE_50s );
     }
     
     // Perform periodic application task
@@ -430,72 +438,12 @@ static void hidKbdMouse_ProcessOSALMsg( osal_event_hdr_t *pMsg )
 {
   switch ( pMsg->event )
   {
-  case KEY_CHANGE:
-    hidKbdMouse_HandleKeys( ((keyChange_t *)pMsg)->state, ((keyChange_t *)pMsg)->keys );
-    break;
+    //  case KEY_CHANGE:
+    //    hidKbdMouse_HandleKeys( ((keyChange_t *)pMsg)->state, ((keyChange_t *)pMsg)->keys );
+    //    break;
     
   default:
     break;
-  }
-}
-
-/*********************************************************************
-* @fn      hidKbdMouse_HandleKeys
-*
-* @brief   Handles all key events for this device.
-*
-* @param   shift - true if in shift/alt.
-* @param   keys - bit field for key events. Valid entries:
-*                 HAL_KEY_SW_2
-*                 HAL_KEY_SW_1
-*
-* @return  none
-*/
-static void hidKbdMouse_HandleKeys( uint8 shift, uint8 keys )
-{
-  static uint8 prevKey1 = 0;
-  static uint8 prevKey2 = 0;
-  
-  (void)shift;  // Intentionally unreferenced parameter
-  
-  if ( (keys & HAL_KEY_SW_1) && (prevKey1 == 0) )
-  {
-    // pressed
-    hidKbdMouseSendReport( KEY_LEFT_ARROW );
-    prevKey1 = 1;
-  }
-  else if ( !(keys & HAL_KEY_SW_1) && (prevKey1 == 1) )
-  {
-    // released
-    hidKbdMouseSendReport( KEY_NONE );
-    prevKey1 = 0;
-  }
-  
-  if ( (keys & HAL_KEY_SW_2) && (prevKey2 == 0) )
-  {
-    // pressed
-    if ( !hidBootMouseEnabled )
-    {
-      hidKbdMouseSendReport( KEY_RIGHT_ARROW );
-    }
-    else
-    {
-      // hidKbdMouseSendMouseReport( MOUSE_BUTTON_1 );
-    }
-    prevKey2 = 1;
-  }
-  else if ( !(keys & HAL_KEY_SW_2) && (prevKey2 == 1) )
-  {
-    // released
-    if ( !hidBootMouseEnabled )
-    {
-      hidKbdMouseSendReport( KEY_NONE );
-    }
-    else
-    {
-      //    hidKbdMouseSendMouseReport ( MOUSE_BUTTON_NONE );
-    }
-    prevKey2 = 0;
   }
 }
 
@@ -508,11 +456,11 @@ static void hidKbdMouse_HandleKeys( uint8 shift, uint8 keys )
 *
 * @return  none
 */
-static void hidKbdMouseSendReport( uint8 keycode )
+static void hidKbdMouseSendReport( uint8 modifier, uint8 keycode )
 {
   uint8 buf[HID_KEYBOARD_IN_RPT_LEN];
   
-  buf[0] = 0;         // Modifier keys
+  buf[0] = modifier;  // Modifier keys
   buf[1] = 0;         // Reserved
   buf[2] = keycode;   // Keycode 1
   buf[3] = 0;         // Keycode 2
@@ -674,6 +622,11 @@ For HM-10, USART 1 alt. 2 is being used:
 uint8 *rxBuffer;
 uint8 rxBufferIndex = 0;
 
+uint8 *modeSelStr;
+uint8 strIndex = 0;
+
+uint8 mode = 1; 
+
 static void setupUART(void) {
   HalUARTInit();
   
@@ -681,10 +634,10 @@ static void setupUART(void) {
   
   // configure UART
   uartConfig.configured           = TRUE;
-  uartConfig.baudRate             = HAL_UART_BR_57600;
+  uartConfig.baudRate             = HAL_UART_BR_9600;
   uartConfig.flowControl          = HAL_UART_FLOW_OFF;
   uartConfig.flowControlThreshold = 0;
-  uartConfig.rx.maxBufSize        = 8;
+  uartConfig.rx.maxBufSize        = 20;
   uartConfig.tx.maxBufSize        = 128;
   uartConfig.idleTimeout          = 0;         
   uartConfig.intEnable            = TRUE;
@@ -699,8 +652,9 @@ static void setupUART(void) {
   (void)HalUARTOpen(HAL_UART_PORT_1, &uartConfig);
 #endif
   
-  
-  rxBuffer = osal_mem_alloc(8); //assumes there is no problem with getting this block of memory
+  //assumes there is no problem with getting these blocks of bytes
+  rxBuffer = osal_mem_alloc(20); //expanded to handle name changes
+  modeSelStr = osal_mem_alloc(3);
 }
 
 static void uartCallback(uint8 port, uint8 event) {    
@@ -720,57 +674,142 @@ static void uartCallback(uint8 port, uint8 event) {
     HalUARTRead(HAL_UART_PORT_1, buf, len);
 #endif
     
+    /*
+    Proposing states:
+    - If 3 consequence @'s, ie. @@@ is sent, put device into command mode (0) 
+    - If 3 consequent $'s, ie. $$$ is sent, put device into translation mode (1)
+    
+    - In command mode, use U<value>, D<value>, M<value><value><value><value>, S<value>,<value>
+    all followed by a line return
+    - In translation mode, if the buffer is within ASCII printable, create 
+    reports with corresponding USB HID keycode and send to host (translate). Mouse data is sent with
+    0x03 <state> <x> <y> <z>
+    */
+    
     for(i = 0; i < len; i++) {
-      if((buf[i] != 0x0D) && (buf[i] != 0x0A)) rxBuffer[rxBufferIndex++] = buf[i];
-      else {
-        processBuffer();
-        break;
+      
+      //Detects if a mode is being selected
+      if((buf[i] == '@') || (buf[i] == '$')) { //not to waste time
+        //printf("strIndex: %i\r\n",strIndex);
+        modeSelStr[strIndex++] = buf[i];
+        if(strIndex == 3) {
+          //printf("Testing for selection\r\n");
+          if((modeSelStr[0] == '@') && (modeSelStr[1] == '@') && (modeSelStr[2] == '@')) {
+            printf("CMD");
+            mode = 0;
+          } else if((modeSelStr[0] == '$') && (modeSelStr[1] == '$') && (modeSelStr[2] == '$')) {
+            printf("TRANS");
+            mode = 1;
+          }
+          strIndex = 0;
+          memset(modeSelStr, 0, 3);
+          break; //stops filling buffer if a new mode is selected
+        }
+      } else {
+        //printf("Gallifrey Falls No More\r\n");
+        memset(modeSelStr, 0, 3);
+        strIndex = 0;
+      }
+      
+      if(mode == 0) {
+        //command mode is selected
+        if((buf[i] != 0x0D) && (buf[i] != 0x0A)) rxBuffer[rxBufferIndex++] = buf[i];
+        else {
+          processCommands();
+          break;
+        }
+      } else {
+        sendKbdReportsWith(buf[i]);
       }
     }
     
-    break;
+    break; //break for case(HAL_UART_RX_TIMEOUT)
   }
 }
 
-static void processBuffer(void) {
-  //HalUARTWrite(HAL_UART_PORT_1, rxBuffer, rxBufferIndex);
+/*
+Translate c to keyboard reports
+*/
+static void sendKbdReportsWith(uint8 c) {
+  uint8 modifier = 0;
+  uint8 keycode = asciiToKeycodes[c];
   
-  switch(rxBufferIndex) {
-  case 1: //app command
-    //printf("One\r\n");
-    break;
-  case 3: //Keycode commands
-    //printf("Three\r\n");
-    if(rxBuffer[1] == 'U') {
-      //Key released
-      KBD_Report_RemoveKey(rxBuffer[2]);
-    } else if(rxBuffer[1] == 'D') {
-      //Key pressed 
-      KBD_Report_AddKey(rxBuffer[2]);
-    }
-    break;
-  case 5: //Mouse command
-    //printf("Five\r\n");
-    hidKbdMouseSendMouseReport(rxBuffer[1], rxBuffer[2], rxBuffer[3], rxBuffer[4]);
-    break;
-  case 7:
-    //update keyboard report (send to host)
-    //printf("Seven\r\n");
-    KBD_Report_Update();
-    break;
+  //convert ascii characters to keycodes
+  if(((c >= 33) && (c <=38))||(c==40)||(c==41)||(c==42)||(c==43)||(c==58)||(c==60)||(c==94)||(c==95)||(c==123)||(c==124)||(c==125)||(c==126)||((c >= 62) && (c<=90))) {
+    modifier |= 0x02; //Left Shift
   }
+  
+  //emulate a key being pressed then released 
+  hidKbdMouseSendReport(modifier,keycode);
+  hidKbdMouseSendReport(0,0);
+}
+
+//Buffer being processed stored in rxBuffer, does not include CRLF
+/*
+Command sets, chosen options need to be stored in non-volatile memory
+- SC,<value>  + set connection mode of device
++ <value> is a single digit number
++ 1 Do not auto-connect to last paired, 2 auto-connect to last paired
+- SN,<value>  + set device name
++ <value> device's new name
+- S,R Reset the device
+- S,D Set device to be discoverable
+- S,DC  Disconnect device from host
+*/
+static void processCommands(void) {
+  //buf: Testing variables
+  uint8 *buf = rxBuffer;
+  buf[rxBufferIndex] = 0;
+  
+  if(rxBuffer[0] == 'K') { //keyboard commands
+    if(rxBufferIndex == 3) {
+      //printf("Keyboard key press and release\r\n");
+      if(rxBuffer[1] == 'U') {
+        //Key released
+        KBD_Report_RemoveKey(rxBuffer[2]);
+      } else if(rxBuffer[1] == 'D') {
+        //Key pressed 
+        KBD_Report_AddKey(rxBuffer[2]);
+      }
+    } else { //command as KS maybe, for Keyboard-report Send
+      //printf("Sending report...\r\n");
+      KBD_Report_Update();
+    }
+  } else if(rxBuffer[0] == 'M') { //mouse commands
+    //printf("Mouse commands\r\n");
+    hidKbdMouseSendMouseReport(rxBuffer[1], rxBuffer[2], rxBuffer[3], rxBuffer[4]);
+  } else if(rxBuffer[0] == 'S') { //setting commands
+    //printf("Setting commands\r\n");
+    if((rxBuffer[1] == 'C') && (rxBuffer[2] == ',')) {
+      //TO-DO: SET CONNECTION MODE
+      //printf("Connection modes\r\n");
+    } else if((rxBuffer[1] == 'N') && (rxBuffer[2] == ',')) {
+      //TO-DO: SET NAME,
+      //printf("Name is being set, reset to set new name\r\n");
+    } else if((rxBuffer[1] == ',') && (rxBuffer[2] == 'R')) {
+      //reset the device
+      HAL_SYSTEM_RESET();
+    } else if((rxBuffer[1] == ',') && (rxBuffer[2] == 'D')) {
+      if(rxBuffer[3] == 'C') {
+        //disconnect the device from host
+        //printf("Disconnecting from host...\r\n");
+        GAPRole_TerminateConnection();
+      } else {
+        //set device to be discoverable
+        //printf("Set deveice to be discoverable\r\n");
+      }
+    } 
+  }   
   
   //after processing, reset rxBuffer and its index
   memset(rxBuffer, 0, 8);
   rxBufferIndex = 0;
-  
 }
 
 static void performPeriodicTask(void) {
-  /*
-  uint8 *strOut = "Hello World\r";
-  HalUARTWrite(HAL_UART_PORT_1, strOut, strlen((const char*)strOut));
-  */
+  //send a blank keyboard report to keep connection connected
+  //  hidKbdMouseSendReport(0,hut5);
+  hidKbdMouseSendReport(0,0);
 }
 /*********************************************************************
 *********************************************************************/
