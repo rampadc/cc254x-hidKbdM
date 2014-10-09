@@ -27,6 +27,8 @@ The source code included needs to be copied into a folder created inside TI's of
 Project folder as the INCLUDES defined in the Preprocessor are set up for this. The official API was 
 not included in the project as the license agreement does not allow this.
 
+This repository includes the "last-known might-be-working" version of the firmware.
+
 # License
 
 Copyright 2014 Cong Nguyen
