@@ -16,7 +16,7 @@ In command mode, the device parse commands sent by the host that are followed by
 
 In translation mode, the device automatically translate ASCII characters to HID keycodes and emulate the key being pressed and released. The characters being covered is currently limited to the first 128 ASCII characters. Other keys like F1-F12, PrintScreen, etc. can only be sent in command mode.
 
-Pre-built firmwares are included as HEX files in the bin folder in CC2540DB and CC2541DB. Since most HM-10 modules now use CC2541, firmware compilation has since been stopped. However, since they both share the same code base, you can compile the firmware yourself. The firmware compiled includes:
+Pre-built firmwares are included as HEX files in the bin folder in CC2540DB and CC2541DB. Since most HM-10 modules now use CC2541, firmware compilation for CC2540 has since been stopped. However, since they both share the same code base, you can compile the firmware yourself. The firmware compiled includes:
 + HM-10_CC254x_DisplayOnly.hex: Early release, to-be-updated soon. (5/8/2014)
 + HM-10_CC254x_KeyboardOnly.hex: Early release, to be updated soon (5/8/2014)
 + HM-10_CC2541_Experimental.hex: Firmware that supports command mode and translation mode. Passcode 000000. (9/10/2014)
