@@ -1,6 +1,6 @@
 # Overview
 
-This is a firmware for Texas Instruments CC2540 Bluetooth Low Energy microcontroller that sends
+This is a firmware for Texas Instruments CC254x Bluetooth Low Energy microcontroller that sends
 keyboard and mouse reports via Bluetooth to the host. The commands to control the reports are sent
 via UART at 9600 bps with 8 data bits and no parity bit.
 
