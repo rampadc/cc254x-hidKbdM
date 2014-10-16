@@ -7,9 +7,9 @@ via UART at 9600 bps with 8 data bits and no parity bit.
 The device operates in 2 modes: command mode and translation mode.
 
 In command mode, the device parse commands sent by the host that are followed by a CR or LF character. The list of commands implemented is listed below:
-+ KU<value>: a key is released with an 8-bit value that corresponds to a HID keycode
-+ KD<value>: a key is pressed with an 8-bit value that corresponds to a HID keycode
-+ M<status><X><Y><Z>: sending mouse buttons and mouse coordinates
++ KU[value]: a key is released with an 8-bit value that corresponds to a HID keycode
++ KD[value]: a key is pressed with an 8-bit value that corresponds to a HID keycode
++ M[status][X][Y][Z]: sending mouse buttons and mouse coordinates
 + KUPDATE: send report to host
 + S,R: reset the device
 + S,DC: disconnect from host
