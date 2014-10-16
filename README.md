@@ -21,6 +21,10 @@ Pre-built firmwares are included as HEX files in the bin folder in CC2540DB and 
 + HM-10_CC254x_KeyboardOnly.hex: Early release, to be updated soon (5/8/2014)
 + HM-10_CC2541_Experimental.hex: Firmware that supports command mode and translation mode. Passcode 000000. (9/10/2014)
 
+**Features to be implemented**
++ Name change
++ Receive LED reports from host and send it over UART to external MCU
+
 # Setup
 To flash the firmware onto the chip, CC Debugger ($49) from Texas Instruments need to be used with 
 SmartRF Flash Programmer (free). Connection to HM-10 is as follows:
