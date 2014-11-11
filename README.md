@@ -25,6 +25,11 @@ Pre-built firmwares are included as HEX files in the bin folder in CC2540DB and 
 + Name change
 + Receive LED reports from host and send it over UART to external MCU
 
+**More up-to-date source code**
+Github branch was meant to only host the last known stable code. For in-development code, have a look at:
+https://bitbucket.org/congia/cc2540-hid-keyboard-mouse-bridge/commits/all
+I have tried to migrate the project to github altogether but I'm not quite good at using Git so this setup would have to do.
+
 # Setup
 To flash the firmware onto the chip, CC Debugger ($49) from Texas Instruments need to be used with 
 SmartRF Flash Programmer (free). Connection to HM-10 is as follows:
