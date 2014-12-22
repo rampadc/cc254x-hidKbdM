@@ -38,6 +38,8 @@ TO-DO:
 #include "battservice.h"
 #include "hiddev.h"
 
+#include "osal_snv.h"
+
 #include "hidKbdMouse.h"
 #include <string.h>
 
@@ -60,6 +62,7 @@ TO-DO:
 // Selected HID LED bitmaps
 #define LED_NUM_LOCK                0x01
 #define LED_CAPS_LOCK               0x02
+#define LED_SCROLL_LOCK             0x03
 
 // Selected HID mouse button values
 #define MOUSE_BUTTON_1              0x01
@@ -119,6 +122,10 @@ TO-DO:
 // Battery level is critical when it is less than this %
 #define DEFAULT_BATT_CRITICAL_LEVEL           6
 
+#define SNV_ID_DEVICE_NAME              0x80
+#define SNV_ID_DEVICE_NAME_LENGTH       0x81
+#define SNV_ID_DEVICE_NAME_CRC          0x82
+
 /*********************************************************************
 * TYPEDEFS
 */
@@ -141,11 +148,14 @@ uint8 hidKbdMouseTaskId;
 /*********************************************************************
 * LOCAL VARIABLES
 */
-
-// GAP Profile - Name attribute for SCAN RSP data
-static uint8 scanData[] =
+uint8 *device_name_crc;
+uint8 *device_name;
+uint8 *device_name_length;
+    
+// GAP Profile - Name attribute for SCAN RSP data - Name shown up when scanned
+static uint8 default_scanData[] =
 {
-  0x15,                             // length of this data
+  0x15,                             // length of this data => (name's size = 20 bytes) + 1
   GAP_ADTYPE_LOCAL_NAME_COMPLETE,   // AD Type = Complete local name
   'H',
   'I',
@@ -192,7 +202,6 @@ static uint8 advData[] =
   HI_UINT16(BATT_SERV_UUID)
 };
 
-// Device name attribute value
 static CONST uint8 attDeviceName[GAP_DEVICE_NAME_LEN] = "HID Keyboard & Mouse";
 
 // HID Dev configuration
@@ -229,8 +238,49 @@ static void sendKbdReportsWith(uint8 c);
 
 //uart-to-hid scan code
 static const uint8 asciiToKeycodes[128] = {
-  hutReserved,hutReserved,hutReserved,hutReserved,hutReserved,hutReserved,hutReserved,hutReserved,hutBackspace,hutTab,hutReserved,hutReserved,hutReserved,hutEnter,hutReserved,hutReserved,hutReserved,hutReserved,hutReserved,hutReserved,hutReserved,hutReserved,hutReserved,hutReserved,hutReserved,hutReserved,hutReserved,hutEscape,hutReserved,hutReserved,hutReserved,hutReserved,hutSpacebar,hut1,hutApostrophe,hut3,hut4,hut5,hut7,hutApostrophe,hut9,hut0,hut8,hutEqual,hutComma,hutMinus,hutPeriod,hutSlash,hut0,hut1,hut2,hut3,hut4,hut5,hut6,hut7,hut8,hut9,hutSemicolon,hutSemicolon,hutComma,hutEqual,hutPeriod,hutSlash,hut2,hutA,hutB,hutC,hutD,hutE,hutF,hutG,hutH,hutI,hutJ,hutK,hutL,hutM,hutN,hutO,hutP,hutQ,hutR,hutS,hutT,hutU,hutV,hutW,hutX,hutY,hutZ,hutLeftBracket,hutBackslash,hutRightBracket,hut6,hutMinus,hutTilde,hutA,hutB,hutC,hutD,hutE,hutF,hutG,hutH,hutI,hutJ,hutK,hutL,hutM,hutN,hutO,hutP,hutQ,hutR,hutS,hutT,hutU,hutV,hutW,hutX,hutY,hutZ,hutLeftBracket,hutBackslash,hutRightBracket,hutTilde,hutDeleteForward
+  hutReserved,hutReserved,hutReserved,hutReserved,hutReserved,hutReserved,hutReserved,hutReserved,hutBackspace,hutTab,hutEnter,hutReserved,hutReserved,hutReserved,hutReserved,hutReserved,hutReserved,hutReserved,hutReserved,hutReserved,hutReserved,hutReserved,hutReserved,hutReserved,hutReserved,hutReserved,hutReserved,hutEscape,hutReserved,hutReserved,hutReserved,hutReserved,hutSpacebar,hut1,hutApostrophe,hut3,hut4,hut5,hut7,hutApostrophe,hut9,hut0,hut8,hutEqual,hutComma,hutMinus,hutPeriod,hutSlash,hut0,hut1,hut2,hut3,hut4,hut5,hut6,hut7,hut8,hut9,hutSemicolon,hutSemicolon,hutComma,hutEqual,hutPeriod,hutSlash,hut2,hutA,hutB,hutC,hutD,hutE,hutF,hutG,hutH,hutI,hutJ,hutK,hutL,hutM,hutN,hutO,hutP,hutQ,hutR,hutS,hutT,hutU,hutV,hutW,hutX,hutY,hutZ,hutLeftBracket,hutBackslash,hutRightBracket,hut6,hutMinus,hutTilde,hutA,hutB,hutC,hutD,hutE,hutF,hutG,hutH,hutI,hutJ,hutK,hutL,hutM,hutN,hutO,hutP,hutQ,hutR,hutS,hutT,hutU,hutV,hutW,hutX,hutY,hutZ,hutLeftBracket,hutBackslash,hutRightBracket,hutTilde,hutDeleteForward
 };
+
+//Pololu's CRC functions with minimal changes
+uint8 CRCPoly = 0x89;  // the value of our CRC-7 polynomial
+uint8 CRCTable[256];
+
+void GenerateCRCTable()
+{
+    int i, j;
+ 
+    // generate a table value for all 256 possible byte values
+    for (i = 0; i < 256; i++)
+    {
+        CRCTable[i] = (i & 0x80) ? i ^ CRCPoly : i;
+        for (j = 1; j < 8; j++)
+        {
+            CRCTable[i] <<= 1;
+            if (CRCTable[i] & 0x80)
+                CRCTable[i] ^= CRCPoly;
+        }
+    }
+}
+ 
+ 
+// adds a message byte to the current CRC-7 to get a the new CRC-7
+uint8 CRCAdd(uint8 CRC, uint8 message_byte)
+{
+    return CRCTable[(CRC << 1) ^ message_byte];
+}
+ 
+ 
+// returns the CRC-7 for a message of "length" bytes
+uint8 getCRC(uint8 message[], uint8 length)
+{
+    uint8 i;
+    uint8 CRC = 0;
+ 
+    for (i = 0; i < length; i++)
+        CRC = CRCAdd(CRC, message[i]);
+ 
+    return CRC;
+}
 
 /*********************************************************************
 * PROFILE CALLBACKS
@@ -263,6 +313,13 @@ static hidDevCB_t hidKbdMouseHidCBs =
 */
 void HidKbdMouse_Init( uint8 task_id )
 {
+  setupUART();
+  GenerateCRCTable();
+  //printf("%x\n",default_name_crc);
+  device_name = osal_mem_alloc(20);
+  device_name_length = osal_mem_alloc(1);
+  device_name_crc = osal_mem_alloc(1);
+  
   hidKbdMouseTaskId = task_id;
   
   // Setup the GAP
@@ -288,7 +345,26 @@ void HidKbdMouse_Init( uint8 task_id )
     GAPRole_SetParameter( GAPROLE_ADVERT_OFF_TIME, sizeof( uint16 ), &gapRole_AdvertOffTime );
     
     GAPRole_SetParameter( GAPROLE_ADVERT_DATA, sizeof( advData ), advData );
-    GAPRole_SetParameter( GAPROLE_SCAN_RSP_DATA, sizeof ( scanData ), scanData );
+    
+    //name change - 21/12/2014
+    osal_snv_read(SNV_ID_DEVICE_NAME_CRC, 1, device_name_crc);
+    osal_snv_read(SNV_ID_DEVICE_NAME_LENGTH, 1, device_name_length);
+    osal_snv_read(SNV_ID_DEVICE_NAME, 20, device_name);
+        
+    if(*device_name_crc != getCRC(device_name, *device_name_length)) {
+      printf("Using default scan response name\r\n");
+      GAPRole_SetParameter( GAPROLE_SCAN_RSP_DATA, sizeof ( default_scanData ), default_scanData );
+    } else {      
+      //make changes directly to the default_scanData. Since this variable is set at start-up, it should not matter
+      uint8 len = *device_name_length;
+      uint8 default_name_length = default_scanData[0];
+      default_scanData[0] = len + 1;
+      uint8 i;
+      for(i = 0; i < len; i++) {
+        default_scanData[i+2] = device_name[i];
+      }      
+      GAPRole_SetParameter( GAPROLE_SCAN_RSP_DATA, sizeof ( default_scanData ), default_scanData );
+    }
     
     GAPRole_SetParameter( GAPROLE_PARAM_UPDATE_ENABLE, sizeof( uint8 ), &enable_update_request );
     GAPRole_SetParameter( GAPROLE_MIN_CONN_INTERVAL, sizeof( uint16 ), &desired_min_interval );
@@ -298,7 +374,14 @@ void HidKbdMouse_Init( uint8 task_id )
   }
   
   // Set the GAP Characteristics
-  GGS_SetParameter( GGS_DEVICE_NAME_ATT, GAP_DEVICE_NAME_LEN, (void *) attDeviceName );
+  if(*device_name_crc != getCRC(device_name, *device_name_length)) {
+//    printf("Using default device name");
+    GGS_SetParameter( GGS_DEVICE_NAME_ATT, GAP_DEVICE_NAME_LEN, (void *) attDeviceName );
+  } else {
+//    printf("Using stored device name");
+//    printf("%s\r\n", device_name);
+    GGS_SetParameter( GGS_DEVICE_NAME_ATT, *device_name_length + 1, (void *) device_name );
+  }
   //Allow device to change name
   uint8 devNamePermission = GATT_PERMIT_READ|GATT_PERMIT_WRITE; 
   GGS_SetParameter( GGS_W_PERMIT_DEVICE_NAME_ATT, sizeof ( uint8 ), &devNamePermission );
@@ -359,7 +442,7 @@ void HidKbdMouse_Init( uint8 task_id )
   KBD_Report_Init();
   
   // UART init
-  setupUART();
+  //setupUART(); //moving it up before stack start
   
   // Setup a delayed profile startup
   osal_set_event( hidKbdMouseTaskId, START_DEVICE_EVT );
@@ -507,18 +590,20 @@ static void hidKbdMouseSendMouseReport(uint8 buttons, int8 dx, int8 dy, int8 dz)
 * @return  status
 */
 static uint8 hidKbdMouseRcvReport( uint8 len, uint8 *pData )
-{
-  // verify data length
-  if ( len == HID_LED_OUT_RPT_LEN )
-  {
-    // set keyfob LEDs
-    HalLedSet( HAL_LED_1, ((*pData & LED_CAPS_LOCK) == LED_CAPS_LOCK) );
-    HalLedSet( HAL_LED_2, ((*pData & LED_NUM_LOCK) == LED_NUM_LOCK) );
+{ 
+  //attempt to extract report bits from host output
+  if(len == HID_LED_OUT_RPT_LEN) {
+    if((*pData & LED_CAPS_LOCK) == LED_CAPS_LOCK) printf("CL,1");
+    else printf("CL,0");
+    
+    if((*pData & LED_NUM_LOCK) == LED_NUM_LOCK) printf("NL,1");
+    else printf("NL, 0");
+    
+    if((*pData & LED_SCROLL_LOCK) == LED_SCROLL_LOCK) printf("SL,1");
+    else printf("SL,0");
     
     return SUCCESS;
-  }
-  else
-  {
+  } else {
     return ATT_ERR_INVALID_VALUE_SIZE;
   }
 }
@@ -625,7 +710,7 @@ uint8 rxBufferIndex = 0;
 uint8 *modeSelStr;
 uint8 strIndex = 0;
 
-uint8 mode = 1; 
+uint8 mode = 0; //command mode by default
 
 static void setupUART(void) {
   HalUARTInit();
@@ -784,8 +869,26 @@ static void processCommands(void) {
       //TO-DO: SET CONNECTION MODE
       //printf("Connection modes\r\n");
     } else if((rxBuffer[1] == 'N') && (rxBuffer[2] == ',')) {
-      //TO-DO: SET NAME,
-      //printf("Name is being set, reset to set new name\r\n");
+      uint8 i;
+      uint8 deviceNewName[20];
+      uint8 deviceNewNameLength;
+      uint8 deviceNewNameCRC;
+      
+      deviceNewNameLength = rxBufferIndex-3;
+      if(deviceNewNameLength > 20) {
+        printf("Name exceeds permitted length\r\n");
+      } else {
+        for(i = 3; i < rxBufferIndex; i++) {
+          deviceNewName[i-3] = rxBuffer[i];
+        }   
+        deviceNewName[deviceNewNameLength] = '\0';
+        deviceNewNameCRC = getCRC(deviceNewName, deviceNewNameLength);
+
+        osal_snv_write(SNV_ID_DEVICE_NAME, 20, deviceNewName);
+        osal_snv_write(SNV_ID_DEVICE_NAME_LENGTH, 1, &deviceNewNameLength);
+        osal_snv_write(SNV_ID_DEVICE_NAME_CRC, 1, &deviceNewNameCRC);
+        printf("Name is being set, reset to set new name\r\n");
+      }
     } else if((rxBuffer[1] == ',') && (rxBuffer[2] == 'R')) {
       //reset the device
       HAL_SYSTEM_RESET();

@@ -949,7 +949,7 @@
         </option>
         <option>
           <name>ExtraOutputFile</name>
-          <state>$PROJ_DIR$\bin\HM-10_CC2540_KeyboardyOnly.hex</state>
+          <state>$PROJ_DIR$\bin\HM-10_CC2540_DisplayOnly.hex</state>
         </option>
         <option>
           <name>ExtraOutputFormat</name>

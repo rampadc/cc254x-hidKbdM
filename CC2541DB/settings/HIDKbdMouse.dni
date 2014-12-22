@@ -9,7 +9,7 @@ TriggerName=main
 LimitSize=0
 ByteLimit=50
 [DebugChecksum]
-Checksum=1040544806
+Checksum=57166136
 [CallStack]
 ShowArgs=0
 [Disassembly]
