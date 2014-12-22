@@ -16,22 +16,19 @@ In command mode, the device parse commands sent by the host that are followed by
 + KUPDATE: send report to host
 + S,R: reset the device
 + S,DC: disconnect from host
++ SN,[value]: change scan response data's string and device name. [value] must be less than 20 characters long. Restart device to see changes.
 
 In translation mode, the device automatically translate ASCII characters to HID keycodes and emulate the key being pressed and released. The characters being covered is currently limited to the first 128 ASCII characters. Other keys like F1-F12, PrintScreen, etc. can only be sent in command mode.
 
 Pre-built firmwares are included as HEX files in the bin folder in CC2540DB and CC2541DB. Since most HM-10 modules now use CC2541, firmware compilation for CC2540 has since been stopped. However, since they both share the same code base, you can compile the firmware yourself. The firmware compiled includes:
-+ HM-10_CC254x_DisplayOnly.hex: Early release, to-be-updated soon. (5/8/2014)
-+ HM-10_CC254x_KeyboardOnly.hex: Early release, to be updated soon (5/8/2014)
-+ HM-10_CC2541_Experimental.hex: Firmware that supports command mode and translation mode. Passcode 000000. (9/10/2014)
++ HM-10_CC254x_DisplayOnly.hex: Early release, to-be-updated soon. (5/8/2014) - obsolete
++ HM-10_CC254x_KeyboardOnly.hex: Early release, to be updated soon (5/8/2014) - obsolete
++ HM-10_CC2541_Experimental.hex: Firmware that supports command mode and translation mode. Passcode 000000. (23/12/2014)
 
 **Features to be implemented**
-+ Name change
 + Receive LED reports from host and send it over UART to external MCU
 
-**More up-to-date source code**
-Github branch was meant to only host the last known stable code. For in-development code, have a look at:
-https://bitbucket.org/congia/cc2540-hid-keyboard-mouse-bridge/commits/all
-I have tried to migrate the project to github altogether but I'm not quite good at using Git so this setup would have to do.
+The development for this project is potentially ceased. 
 
 # Setup
 To flash the firmware onto the chip, CC Debugger ($49) from Texas Instruments need to be used with 
