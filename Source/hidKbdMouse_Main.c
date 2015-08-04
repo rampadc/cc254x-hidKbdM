@@ -4,7 +4,12 @@
   Revision:       $Revision: 37 $
 
   Description:    This file contains the main and callback functions for
-                  the HID keyboard & mouse application.
+                  the HID keyboard & mouse application. Once startup, device
+                  initializes with POWER_SAVING mode and starts in COMMAND 
+                  mode. 
+
+                  Host must send S,S\n to put device into sleep every time.
+                  UART at 57600, no flow
 
 **************************************************************************************************/
 
