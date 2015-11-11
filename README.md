@@ -31,6 +31,8 @@ Pre-built firmwares are included as HEX files in the bin folder in CC2540DB and 
 The development for this project is potentially ceased. 
 
 # Setup
+This was developed with IAR Embedded Workbench for 8051 v8.30 and BLE-stack v1.4.0. It is not updated to the latest BLE-stack v1.4.1.
+
 To flash the firmware onto the chip, CC Debugger ($49) from Texas Instruments need to be used with 
 SmartRF Flash Programmer (free). Connection to HM-10 is as follows:
 
