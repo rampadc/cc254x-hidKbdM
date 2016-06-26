@@ -10,23 +10,11 @@
     <debug>1</debug>
     <settings>
       <name>General</name>
-      <archiveVersion>1</archiveVersion>
+      <archiveVersion>3</archiveVersion>
       <data>
-        <version>6</version>
+        <version>8</version>
         <wantNonLocal>1</wantNonLocal>
         <debug>1</debug>
-        <option>
-          <name>DerivativeDescriptionFile</name>
-          <state>$TOOLKIT_DIR$\config\devices\Texas Instruments\CC2541F256.i51</state>
-        </option>
-        <option>
-          <name>Previous Derivative File</name>
-          <state>$TOOLKIT_DIR$\config\devices\Texas Instruments\CC2541F256.i51</state>
-        </option>
-        <option>
-          <name>Showed Derivative</name>
-          <state>CC2541F256</state>
-        </option>
         <option>
           <name>CPU Core</name>
           <version>1</version>
@@ -262,13 +250,41 @@
           <name>Extended stack is offset</name>
           <state>0</state>
         </option>
+        <option>
+          <name>OGChipSelectMenu</name>
+          <state>CC2541F256	CC2541F256</state>
+        </option>
+        <option>
+          <name>OGChipSelectMenuSlave</name>
+          <state>CC2541F256	CC2541F256</state>
+        </option>
+        <option>
+          <name>DPC Address</name>
+          <state></state>
+        </option>
+        <option>
+          <name>AutoModificationType</name>
+          <state></state>
+        </option>
+        <option>
+          <name>UseHWMulDivUnit</name>
+          <state>0</state>
+        </option>
+        <option>
+          <name>UseMDU</name>
+          <state></state>
+        </option>
+        <option>
+          <name>AdditionalDriver</name>
+          <state></state>
+        </option>
       </data>
     </settings>
     <settings>
       <name>ICC8051</name>
-      <archiveVersion>5</archiveVersion>
+      <archiveVersion>6</archiveVersion>
       <data>
-        <version>10</version>
+        <version>11</version>
         <wantNonLocal>1</wantNonLocal>
         <debug>1</debug>
         <option>
@@ -479,11 +495,32 @@
           <state>$PROJ_DIR$\..\..\..\..\Components\ble\host</state>
           <state>$PROJ_DIR$\..\..\common\cc2540</state>
           <state>$PROJ_DIR$\..\..\Profiles\Roles</state>
+          <state>$PROJ_DIR$\..\..\common</state>
+          <state>$PROJ_DIR$\..\..\include</state>
+          <state>$PROJ_DIR$\..\..\..\..\Components\hal\include</state>
+          <state>$PROJ_DIR$\..\..\..\..\Components\hal\target\CC2540EB</state>
+          <state>$PROJ_DIR$\..\..\..\..\Components\osal\include</state>
+          <state>$PROJ_DIR$\..\..\..\..\Components\services\saddr</state>
+          <state>$PROJ_DIR$\..\..\..\..\Components\ble\include</state>
+          <state>$PROJ_DIR$\..\..\..\..\Components\ble\controller\phy</state>
+          <state>$PROJ_DIR$\..\..\..\..\Components\ble\controller\include</state>
+          <state>$PROJ_DIR$\..\..\..\..\Components\ble\hci</state>
+          <state>$PROJ_DIR$\..\..\..\..\Components\ble\host</state>
+          <state>$PROJ_DIR$\..\..\common\cc2540</state>
+          <state>$PROJ_DIR$\..\..\Profiles\Roles</state>
+          <state>$PROJ_DIR$\..\..\CC254x\include</state>
           <state>$PROJ_DIR$\..\..\Profiles\HIDDevKbM</state>
           <state>$PROJ_DIR$\..\..\Profiles\HidDev</state>
           <state>$PROJ_DIR$\..\..\Profiles\DevInfo</state>
           <state>$PROJ_DIR$\..\..\Profiles\Batt</state>
           <state>$PROJ_DIR$\..\..\Profiles\ScanParam</state>
+          <state>$PROJ_DIR$\..\..\Profiles\Roles\CC254x</state>
+          <state>$PROJ_DIR$\..\..\Profiles\HIDDevKbM\CC254x</state>
+          <state>$PROJ_DIR$\..\..\Profiles\HidDev\CC254x</state>
+          <state>$PROJ_DIR$\..\..\Profiles\DevInfo\CC254x</state>
+          <state>$PROJ_DIR$\..\..\Profiles\Batt\CC254x</state>
+          <state>$PROJ_DIR$\..\..\Profiles\ScanParam\CC254x</state>
+          <state>$PROJ_DIR$\..\..\..\..\Components\ble\controller\CC254x\include</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -555,6 +592,10 @@
         <option>
           <name>NoSizeConstraints</name>
           <state>0</state>
+        </option>
+        <option>
+          <name>UseHWMulDivUnit</name>
+          <state>1</state>
         </option>
       </data>
     </settings>
@@ -718,6 +759,7 @@
       <data>
         <extensions></extensions>
         <cmdline></cmdline>
+        <hasPrio>0</hasPrio>
       </data>
     </settings>
     <settings>
@@ -735,9 +777,9 @@
     </settings>
     <settings>
       <name>XLINK</name>
-      <archiveVersion>3</archiveVersion>
+      <archiveVersion>4</archiveVersion>
       <data>
-        <version>18</version>
+        <version>21</version>
         <wantNonLocal>1</wantNonLocal>
         <debug>1</debug>
         <option>
@@ -1057,6 +1099,30 @@
           <version>0</version>
           <state>0</state>
         </option>
+        <option>
+          <name>XLink DPC Address</name>
+          <state>1</state>
+        </option>
+        <option>
+          <name>XlinkLogEnable</name>
+          <state>0</state>
+        </option>
+        <option>
+          <name>XlinkLogInputFiles</name>
+          <state>0</state>
+        </option>
+        <option>
+          <name>XlinkLogModuleSelection</name>
+          <state>0</state>
+        </option>
+        <option>
+          <name>XlinkLogPrintfScanf</name>
+          <state>0</state>
+        </option>
+        <option>
+          <name>XlinkLogSegmentSelection</name>
+          <state>0</state>
+        </option>
       </data>
     </settings>
     <settings>
@@ -1085,6 +1151,11 @@
       </data>
     </settings>
     <settings>
+      <name>HWMUL</name>
+      <archiveVersion>0</archiveVersion>
+      <data/>
+    </settings>
+    <settings>
       <name>BILINK</name>
       <archiveVersion>0</archiveVersion>
       <data/>
@@ -1108,7 +1179,7 @@
       <name>$PROJ_DIR$\..\Source\KBD_Report.c</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\Source\KBD_Report.h</name>
+      <name>$PROJ_DIR$\..\Source\KBD_report.h</name>
     </file>
     <file>
       <name>$PROJ_DIR$\..\Source\MOUSE_DEF.h</name>
@@ -1264,13 +1335,13 @@
       <name>$PROJ_DIR$\..\..\..\..\Components\ble\host\linkdb.h</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\..\..\Components\ble\controller\include\ll.h</name>
+      <name>$PROJ_DIR$\..\..\..\..\Components\ble\controller\CC254x\include\ll.h</name>
     </file>
     <file>
       <name>$PROJ_DIR$\..\..\common\npi\npi_np\npi.h</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\..\..\Components\ble\controller\include\phy.h</name>
+      <name>$PROJ_DIR$\..\..\..\..\Components\ble\controller\CC254x\include\phy.h</name>
     </file>
     <file>
       <name>$PROJ_DIR$\..\..\..\..\Components\ble\include\sm.h</name>
@@ -1336,10 +1407,10 @@
   <group>
     <name>PROFILES</name>
     <file>
-      <name>$PROJ_DIR$\..\..\Profiles\Batt\battservice.c</name>
+      <name>$PROJ_DIR$\..\..\Profiles\Batt\CC254x\battservice.c</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\Profiles\Batt\battservice.h</name>
+      <name>$PROJ_DIR$\..\..\Profiles\Batt\CC254x\battservice.h</name>
     </file>
     <file>
       <name>$PROJ_DIR$\..\..\Profiles\DevInfo\devinfoservice.c</name>
@@ -1366,25 +1437,28 @@
       <name>$PROJ_DIR$\..\..\Include\gattservapp.h</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\Profiles\HIDDev\hiddev.c</name>
+      <name>$PROJ_DIR$\..\..\Profiles\GATT\gattservapp_util.c</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\Profiles\HIDDev\hiddev.h</name>
+      <name>$PROJ_DIR$\..\..\Profiles\HIDDev\CC254x\hiddev.c</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\Profiles\HIDDevKbM\hidkbmservice.c</name>
+      <name>$PROJ_DIR$\..\..\Profiles\HIDDev\CC254x\hiddev.h</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\Profiles\HIDDevKbM\CC254x\hidkbmservice.c</name>
     </file>
     <file>
       <name>$PROJ_DIR$\..\..\Profiles\HIDDevKbM\hidkbmservice.h</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\Profiles\Roles\peripheral.c</name>
+      <name>$PROJ_DIR$\..\..\Profiles\Roles\CC254x\peripheral.c</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\Profiles\Roles\peripheral.h</name>
+      <name>$PROJ_DIR$\..\..\Profiles\Roles\CC254x\peripheral.h</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\Profiles\ScanParam\scanparamservice.c</name>
+      <name>$PROJ_DIR$\..\..\Profiles\ScanParam\CC254x\scanparamservice.c</name>
     </file>
     <file>
       <name>$PROJ_DIR$\..\..\Profiles\ScanParam\scanparamservice.h</name>
