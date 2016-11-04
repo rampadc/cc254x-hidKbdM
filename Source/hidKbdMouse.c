@@ -183,13 +183,13 @@ static uint8 advData[] =
   0x02,   // length of this data
   GAP_ADTYPE_FLAGS,
   GAP_ADTYPE_FLAGS_LIMITED | GAP_ADTYPE_FLAGS_BREDR_NOT_SUPPORTED,
-  
+
   // appearance
   0x03,   // length of this data
   GAP_ADTYPE_APPEARANCE,
   LO_UINT16(GAP_APPEARE_HID_KEYBOARD),
   HI_UINT16(GAP_APPEARE_HID_MOUSE),
-  
+
   // service UUIDs
   0x05,   // length of this data
   GAP_ADTYPE_16BIT_MORE,
@@ -215,9 +215,9 @@ static uint8 hidBootMouseEnabled = FALSE;
 * LOCAL FUNCTIONS
 */
 
-/* after calling sleepMode(), the host MCU must wake 
+/* after calling sleepMode(), the host MCU must wake
 HM-xx before sending characters */
-static void sleepMode(void); 
+static void sleepMode(void);
 static void activeMode(void);
 
 static void hidKbdMouse_ProcessOSALMsg( osal_event_hdr_t *pMsg );
@@ -250,7 +250,7 @@ uint8 CRCTable[256];
 void GenerateCRCTable()
 {
   int i, j;
-  
+
   // generate a table value for all 256 possible byte values
   for (i = 0; i < 256; i++)
   {
@@ -277,10 +277,10 @@ uint8 getCRC(uint8 message[], uint8 length)
 {
   uint8 i;
   uint8 CRC = 0;
-  
+
   for (i = 0; i < length; i++)
     CRC = CRCAdd(CRC, message[i]);
-  
+
   return CRC;
 }
 
@@ -321,42 +321,42 @@ void HidKbdMouse_Init( uint8 task_id )
   device_name = osal_mem_alloc(20);
   device_name_length = osal_mem_alloc(1);
   device_name_crc = osal_mem_alloc(1);
-  
+
   hidKbdMouseTaskId = task_id;
-  
+
   // Setup the GAP
   VOID GAP_SetParamValue( TGAP_CONN_PAUSE_PERIPHERAL, DEFAULT_CONN_PAUSE_PERIPHERAL );
-  
+
   // Setup the GAP Peripheral Role Profile
   {
     uint8 initial_advertising_enable = TRUE; //previously FALSE
-    
+
     // By setting this to zero, the device will go into the waiting state after
     // being discoverable for 30.72 second, and will not being advertising again
     // until the enabler is set back to TRUE
     uint16 gapRole_AdvertOffTime = 0;
-    
+
     uint8 enable_update_request = DEFAULT_ENABLE_UPDATE_REQUEST;
     uint16 desired_min_interval = DEFAULT_DESIRED_MIN_CONN_INTERVAL;
     uint16 desired_max_interval = DEFAULT_DESIRED_MAX_CONN_INTERVAL;
     uint16 desired_slave_latency = DEFAULT_DESIRED_SLAVE_LATENCY;
     uint16 desired_conn_timeout = DEFAULT_DESIRED_CONN_TIMEOUT;
-    
+
     // Set the GAP Role Parameters
     GAPRole_SetParameter( GAPROLE_ADVERT_ENABLED, sizeof( uint8 ), &initial_advertising_enable );
     GAPRole_SetParameter( GAPROLE_ADVERT_OFF_TIME, sizeof( uint16 ), &gapRole_AdvertOffTime );
-    
+
     GAPRole_SetParameter( GAPROLE_ADVERT_DATA, sizeof( advData ), advData );
-    
+
     //name change - 21/12/2014
     osal_snv_read(SNV_ID_DEVICE_NAME_CRC, 1, device_name_crc);
     osal_snv_read(SNV_ID_DEVICE_NAME_LENGTH, 1, device_name_length);
     osal_snv_read(SNV_ID_DEVICE_NAME, 20, device_name);
-    
+
     if(*device_name_crc != getCRC(device_name, *device_name_length)) {
       printf("Using default scan response name\r\n");
       GAPRole_SetParameter( GAPROLE_SCAN_RSP_DATA, sizeof ( default_scanData ), default_scanData );
-    } else {      
+    } else {
       //make changes directly to the default_scanData. Since this variable is set at start-up, it should not matter
       uint8 len = *device_name_length;
       //uint8 default_name_length = default_scanData[0];
@@ -364,17 +364,17 @@ void HidKbdMouse_Init( uint8 task_id )
       uint8 i;
       for(i = 0; i < len; i++) {
         default_scanData[i+2] = device_name[i];
-      }      
+      }
       GAPRole_SetParameter( GAPROLE_SCAN_RSP_DATA, sizeof ( default_scanData ), default_scanData );
     }
-    
+
     GAPRole_SetParameter( GAPROLE_PARAM_UPDATE_ENABLE, sizeof( uint8 ), &enable_update_request );
     GAPRole_SetParameter( GAPROLE_MIN_CONN_INTERVAL, sizeof( uint16 ), &desired_min_interval );
     GAPRole_SetParameter( GAPROLE_MAX_CONN_INTERVAL, sizeof( uint16 ), &desired_max_interval );
     GAPRole_SetParameter( GAPROLE_SLAVE_LATENCY, sizeof( uint16 ), &desired_slave_latency );
     GAPRole_SetParameter( GAPROLE_TIMEOUT_MULTIPLIER, sizeof( uint16 ), &desired_conn_timeout );
   }
-  
+
   // Set the GAP Characteristics
   if(*device_name_crc != getCRC(device_name, *device_name_length)) {
     //    printf("Using default device name");
@@ -385,9 +385,9 @@ void HidKbdMouse_Init( uint8 task_id )
     GGS_SetParameter( GGS_DEVICE_NAME_ATT, *device_name_length + 1, (void *) device_name );
   }
   //Allow device to change name
-  uint8 devNamePermission = GATT_PERMIT_READ|GATT_PERMIT_WRITE; 
+  uint8 devNamePermission = GATT_PERMIT_READ|GATT_PERMIT_WRITE;
   GGS_SetParameter( GGS_W_PERMIT_DEVICE_NAME_ATT, sizeof ( uint8 ), &devNamePermission );
-  
+
   // Setup the GAP Bond Manager
   {
     uint32 passkey = DEFAULT_PASSCODE;
@@ -401,48 +401,48 @@ void HidKbdMouse_Init( uint8 task_id )
     GAPBondMgr_SetParameter( GAPBOND_IO_CAPABILITIES, sizeof( uint8 ), &ioCap );
     GAPBondMgr_SetParameter( GAPBOND_BONDING_ENABLED, sizeof( uint8 ), &bonding );
   }
-  
+
   // Setup Battery Characteristic Values
   {
     uint8 critical = DEFAULT_BATT_CRITICAL_LEVEL;
     Batt_SetParameter( BATT_PARAM_CRITICAL_LEVEL, sizeof (uint8), &critical );
   }
-  
+
   // Set up HID keyboard service
   HidKbM_AddService( );
-  
+
   // Register for HID Dev callback
   HidDev_Register( &hidKbdMouseCfg, &hidKbdMouseHidCBs );
-  
+
   // Register for all key events - This app will handle all key events
   RegisterForKeys( hidKbdMouseTaskId );
-  
+
 #if defined( CC2540_MINIDK )
   // makes sure LEDs are off
   HalLedSet( (HAL_LED_1 | HAL_LED_2), HAL_LED_MODE_OFF );
-  
+
   // For keyfob board set GPIO pins into a power-optimized state
   // Note that there is still some leakage current from the buzzer,
   // accelerometer, LEDs, and buttons on the PCB.
-  
+
   P0SEL = 0; // Configure Port 0 as GPIO
   P1SEL = 0; // Configure Port 1 as GPIO
   P2SEL = 0; // Configure Port 2 as GPIO
-  
+
   P0DIR = 0xFC; // Port 0 pins P0.0 and P0.1 as input (buttons),
   // all others (P0.2-P0.7) as output
   P1DIR = 0xFF; // All port 1 pins (P1.0-P1.7) as output
   P2DIR = 0x1F; // All port 1 pins (P2.0-P2.4) as output
-  
+
   P0 = 0x03; // All pins on port 0 to low except for P0.0 and P0.1 (buttons)
   P1 = 0;   // All pins on port 1 to low
   P2 = 0;   // All pins on port 2 to low
-  
+
 #endif // #if defined( CC2540_MINIDK )
-  
+
   //init keyboard report manager
   KBD_Report_Init();
-  
+
   // Setup a delayed profile startup
   osal_set_event( hidKbdMouseTaskId, START_DEVICE_EVT );
 }
@@ -462,34 +462,34 @@ void HidKbdMouse_Init( uint8 task_id )
 */
 uint16 HidKbdMouse_ProcessEvent( uint8 task_id, uint16 events )
 {
-  
+
   VOID task_id; // OSAL required parameter that isn't used in this function
-  
+
   if ( events & SYS_EVENT_MSG )
   {
     uint8 *pMsg;
-    
+
     if ( (pMsg = osal_msg_receive( hidKbdMouseTaskId )) != NULL )
     {
       hidKbdMouse_ProcessOSALMsg( (osal_event_hdr_t *)pMsg );
-      
+
       // Release the OSAL message
       VOID osal_msg_deallocate( pMsg );
     }
-    
+
     // return unprocessed events
     return (events ^ SYS_EVENT_MSG);
   }
-  
+
   if ( events & START_DEVICE_EVT )
   {
     // Set timer for first periodic event
     osal_start_timerEx( hidKbdMouseTaskId, SBP_PERIODIC_EVT, KEEP_CONNECTION_ALIVE_50s );
-    
+
     return ( events ^ START_DEVICE_EVT );
   }
-  
-  //Added to test UART  
+
+  //Added to test UART
   if ( events & SBP_PERIODIC_EVT )
   {
     // Restart timer
@@ -497,13 +497,13 @@ uint16 HidKbdMouse_ProcessEvent( uint8 task_id, uint16 events )
     {
       osal_start_timerEx( hidKbdMouseTaskId, SBP_PERIODIC_EVT, KEEP_CONNECTION_ALIVE_50s );
     }
-    
+
     // Perform periodic application task
     performPeriodicTask();
-    
+
     return (events ^ SBP_PERIODIC_EVT);
   }
-  
+
   return 0;
 }
 
@@ -523,7 +523,7 @@ static void hidKbdMouse_ProcessOSALMsg( osal_event_hdr_t *pMsg )
     //  case KEY_CHANGE:
     //    hidKbdMouse_HandleKeys( ((keyChange_t *)pMsg)->state, ((keyChange_t *)pMsg)->keys );
     //    break;
-    
+
   default:
     break;
   }
@@ -541,7 +541,7 @@ static void hidKbdMouse_ProcessOSALMsg( osal_event_hdr_t *pMsg )
 static void hidKbdMouseSendReport( uint8 modifier, uint8 keycode )
 {
   uint8 buf[HID_KEYBOARD_IN_RPT_LEN];
-  
+
   buf[0] = modifier;  // Modifier keys
   buf[1] = 0;         // Reserved
   buf[2] = keycode;   // Keycode 1
@@ -550,7 +550,7 @@ static void hidKbdMouseSendReport( uint8 modifier, uint8 keycode )
   buf[5] = 0;         // Keycode 4
   buf[6] = 0;         // Keycode 5
   buf[7] = 0;         // Keycode 6
-  
+
   HidDev_Report( HID_RPT_ID_KEY_IN, HID_REPORT_TYPE_INPUT,
                 HID_KEYBOARD_IN_RPT_LEN, buf );
 }
@@ -567,13 +567,13 @@ static void hidKbdMouseSendReport( uint8 modifier, uint8 keycode )
 static void hidKbdMouseSendMouseReport(uint8 buttons, int8 dx, int8 dy, int8 dz)
 {
   uint8 buf[HID_MOUSE_IN_RPT_LEN];
-  
+
   buf[0] = buttons;   // Buttons
   buf[1] = dx;         // X
   buf[2] = dy;         // Y
   buf[3] = dz;         // Wheel
   buf[4] = 0;         // AC Pan
-  
+
   HidDev_Report( HID_RPT_ID_MOUSE_IN, HID_REPORT_TYPE_INPUT,
                 HID_MOUSE_IN_RPT_LEN, buf );
 }
@@ -589,18 +589,18 @@ static void hidKbdMouseSendMouseReport(uint8 buttons, int8 dx, int8 dy, int8 dz)
 * @return  status
 */
 static uint8 hidKbdMouseRcvReport( uint8 len, uint8 *pData )
-{ 
+{
   //attempt to extract report bits from host output
   if(len == HID_LED_OUT_RPT_LEN) {
     if((*pData & LED_CAPS_LOCK) == LED_CAPS_LOCK) printf("CL,1");
     else printf("CL,0");
-    
+
     if((*pData & LED_NUM_LOCK) == LED_NUM_LOCK) printf("NL,1");
     else printf("NL, 0");
-    
+
     if((*pData & LED_SCROLL_LOCK) == LED_SCROLL_LOCK) printf("SL,1");
     else printf("SL,0");
-    
+
     return SUCCESS;
   } else {
     return ATT_ERR_INVALID_VALUE_SIZE;
@@ -625,7 +625,7 @@ static uint8 hidKbdMouseRptCB( uint8 id, uint8 type, uint16 uuid,
                               uint8 oper, uint8 *pLen, uint8 *pData )
 {
   uint8 status = SUCCESS;
-  
+
   // write
   if ( oper == HID_DEV_OPER_WRITE )
   {
@@ -637,7 +637,7 @@ static uint8 hidKbdMouseRptCB( uint8 id, uint8 type, uint16 uuid,
         status = hidKbdMouseRcvReport( *pLen, pData );
       }
     }
-    
+
     if ( status == SUCCESS )
     {
       status = HidKbM_SetParameter( id, type, uuid, *pLen, pData );
@@ -664,7 +664,7 @@ static uint8 hidKbdMouseRptCB( uint8 id, uint8 type, uint16 uuid,
       hidBootMouseEnabled = FALSE;
     }
   }
-  
+
   return status;
 }
 
@@ -680,11 +680,11 @@ static uint8 hidKbdMouseRptCB( uint8 id, uint8 type, uint16 uuid,
 static void hidKbdMouseEvtCB( uint8 evt )
 {
   // process enter/exit suspend or enter/exit boot mode
-  
+
   return;
 }
 
-/* 
+/*
 Setting up UART
 - To use UART, HAL_UART=TRUE, preferrably POWER_SAVING is not enabled
 - To use interrupts, HAL_UART_ISR = (1 or 2), HAL_UART_DMA=FALSE
@@ -714,7 +714,7 @@ uint8 mode = COMMAND_MODE;
 
 static void setupUART(void) {
   HalUARTInit();
-  
+
   // configure UART
   uartConfig.configured           = TRUE;
   uartConfig.baudRate             = HAL_UART_BR_57600;
@@ -722,11 +722,11 @@ static void setupUART(void) {
   uartConfig.flowControlThreshold = 0;
   uartConfig.rx.maxBufSize        = 20;
   uartConfig.tx.maxBufSize        = 128;
-  uartConfig.idleTimeout          = 0;         
+  uartConfig.idleTimeout          = 0;
   uartConfig.intEnable            = TRUE;
   uartConfig.callBackFunc         = (halUARTCBack_t)uartCallback;
   //uartConfig.callBackFunc         = NULL;
-  
+
   //start UART
   //assumes no issues with starting UART
 #if (HAL_UART_ISR == 1)
@@ -734,17 +734,17 @@ static void setupUART(void) {
 #else
   (void)HalUARTOpen(HAL_UART_PORT_1, &uartConfig);
 #endif
-  
+
   //assumes there is no problem with getting these blocks of bytes
   rxBuffer = osal_mem_alloc(20); //expanded to handle name changes
   modeSelStr = osal_mem_alloc(3);
 }
 
-static void uartCallback(uint8 port, uint8 event) {    
+static void uartCallback(uint8 port, uint8 event) {
   uint16 len;
   uint8 buf[8];
   uint8 i;
-  
+
   switch(event) {
   case HAL_UART_RX_FULL:
   case HAL_UART_RX_ABOUT_FULL:
@@ -756,21 +756,21 @@ static void uartCallback(uint8 port, uint8 event) {
     len = Hal_UART_RxBufLen(HAL_UART_PORT_1);
     HalUARTRead(HAL_UART_PORT_1, buf, len);
 #endif
-    
+
     /*
     Proposing states:
-    - If 3 consequence @'s, ie. @@@ is sent, put device into command mode (0) 
+    - If 3 consequence @'s, ie. @@@ is sent, put device into command mode (0)
     - If 3 consequent $'s, ie. $$$ is sent, put device into translation mode (1)
-    
+
     - In command mode, use U<value>, D<value>, M<value><value><value><value>, S<value>,<value>
     all followed by a line return
-    - In translation mode, if the buffer is within ASCII printable, create 
+    - In translation mode, if the buffer is within ASCII printable, create
     reports with corresponding USB HID keycode and send to host (translate). Mouse data is sent with
     0x03 <state> <x> <y> <z>
     */
-    
+
     for(i = 0; i < len; i++) {
-      
+
       //Detects if a mode is being selected
       if((buf[i] == '@') || (buf[i] == '$')) { //not to waste time
         //printf("strIndex: %i\r\n",strIndex);
@@ -793,7 +793,7 @@ static void uartCallback(uint8 port, uint8 event) {
         memset(modeSelStr, 0, 3);
         strIndex = 0;
       }
-      
+
       if(mode == COMMAND_MODE) {
         //command mode is selected
         if((buf[i] != 0x0D) && (buf[i] != 0x0A)) {
@@ -809,7 +809,7 @@ static void uartCallback(uint8 port, uint8 event) {
         sendKbdReportsWith(buf[i]);
       }
     }
-    
+
     break; //break for case(HAL_UART_RX_TIMEOUT)
   }
 }
@@ -820,13 +820,13 @@ Translate c to keyboard reports
 static void sendKbdReportsWith(uint8 c) {
   uint8 modifier = 0;
   uint8 keycode = asciiToKeycodes[c];
-  
+
   //convert ascii characters to keycodes
   if(((c >= 33) && (c <=38))||(c==40)||(c==41)||(c==42)||(c==43)||(c==58)||(c==60)||(c==94)||(c==95)||(c==123)||(c==124)||(c==125)||(c==126)||((c >= 62) && (c<=90))) {
     modifier |= 0x02; //Left Shift
   }
-  
-  //emulate a key being pressed then released 
+
+  //emulate a key being pressed then released
   hidKbdMouseSendReport(modifier,keycode);
   hidKbdMouseSendReport(0,0);
 }
@@ -847,7 +847,7 @@ static void processCommands(void) {
   //buf: Testing variables
   uint8 *buf = rxBuffer;
   buf[rxBufferIndex] = 0;
-  
+
   if(rxBuffer[0] == 'K') { //keyboard commands
     if(rxBufferIndex == 3) {
       //printf("Keyboard key press and release\r\n");
@@ -855,7 +855,7 @@ static void processCommands(void) {
         //Key released
         KBD_Report_RemoveKey(rxBuffer[2]);
       } else if(rxBuffer[1] == 'D') {
-        //Key pressed 
+        //Key pressed
         KBD_Report_AddKey(rxBuffer[2]);
       }
     } else { //command as KS maybe, for Keyboard-report Send
@@ -875,17 +875,17 @@ static void processCommands(void) {
       uint8 deviceNewName[20];
       uint8 deviceNewNameLength;
       uint8 deviceNewNameCRC;
-      
+
       deviceNewNameLength = rxBufferIndex-3;
       if(deviceNewNameLength > 20) {
         printf("Name exceeds permitted length\r\n");
       } else {
         for(i = 3; i < rxBufferIndex; i++) {
           deviceNewName[i-3] = rxBuffer[i];
-        }   
+        }
         deviceNewName[deviceNewNameLength] = '\0';
         deviceNewNameCRC = getCRC(deviceNewName, deviceNewNameLength);
-        
+
         osal_snv_write(SNV_ID_DEVICE_NAME, 20, deviceNewName);
         osal_snv_write(SNV_ID_DEVICE_NAME_LENGTH, 1, &deviceNewNameLength);
         osal_snv_write(SNV_ID_DEVICE_NAME_CRC, 1, &deviceNewNameCRC);
@@ -913,9 +913,9 @@ static void processCommands(void) {
       printf("ACTIVE\r\n");
       sleepModeEnabled = 0;
       activeMode();
-    } 
-  }   
-  
+    }
+  }
+
   //after processing, reset rxBuffer and its index
   memset(rxBuffer, 0, 8);
   rxBufferIndex = 0;
@@ -927,7 +927,7 @@ static void performPeriodicTask(void) {
   hidKbdMouseSendReport(0,0);
 }
 
-static void sleepMode(void) { 
+static void sleepMode(void) {
   //Configure RX pin as input with active high interrupt
   // - HM-10: RX = P1.7
   // - HM-11: RX = P0.2
@@ -953,7 +953,7 @@ static void sleepMode(void) {
   osal_pwrmgr_device( PWRMGR_BATTERY );
 }
 
-static void activeMode(void) { 
+static void activeMode(void) {
   // Disable pin interrupts and re-enable UART
   // - HM-10: RX = P1.7
   // - HM-11: RX = P0.2
@@ -966,7 +966,7 @@ static void activeMode(void) {
   P1SEL |= (1 << 7); //select as peripheral pin
   (void)HalUARTOpen(HAL_UART_PORT_1, &uartConfig);
 #endif
-  
+
   osal_pwrmgr_device( PWRMGR_ALWAYS_ON );
 }
 /*********************************************************************
@@ -975,12 +975,12 @@ ISR
 #pragma vector=P0INT_VECTOR
 __interrupt void P0_ISR(void) {
   //HM-11 - Disable pin interrupts and re-enable UART
-  
+
   HAL_ENTER_ISR();
   //clear interrupt
   P0IFG = 0;
   P0IF = 0;
-  
+
   uint8 pV = P0_2;
   if(pV == 0) {
     activeMode();
@@ -992,11 +992,11 @@ __interrupt void P0_ISR(void) {
 #pragma vector=P1INT_VECTOR
 __interrupt void P1_ISR(void) {
   //HM-10 - Disable pin interrupts and re-enable UART
-  
+
   HAL_ENTER_ISR();
   P1IFG = 0;
   P1IF = 0;
-  
+
   uint8 pV = P1_7;
   if(pV) {
     //active low
