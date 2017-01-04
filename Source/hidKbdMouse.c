@@ -929,10 +929,8 @@ static void performPeriodicTask(void) {
 
 static void sleepMode(void) {
   //Configure RX pin as input with active high interrupt
-  // - HM-10: RX = P1.7
-  // - HM-11: RX = P0.2
+  // - HM-10/HM-11: RX = P1.7
 #if (HAL_UART_ISR == 1)
-  //HM-11
   P0SEL &= ~(1 << 2); //deselect as peripheral pin, just to be sure
   P0DIR &= ~(1 << 2); //input
   P0INP &= ~(1 << 2); //enable pull-up or pull-down
@@ -956,9 +954,7 @@ static void sleepMode(void) {
 static void activeMode(void) {
   // Disable pin interrupts and re-enable UART
   // - HM-10: RX = P1.7
-  // - HM-11: RX = P0.2
 #if (HAL_UART_ISR == 1)
-  //HM-11
   P0SEL |= (1 << 2); //select as peripheral pin
   (void)HalUARTOpen(HAL_UART_PORT_0, &uartConfig);
 #else
@@ -974,7 +970,7 @@ ISR
 *********************************************************************/
 #pragma vector=P0INT_VECTOR
 __interrupt void P0_ISR(void) {
-  //HM-11 - Disable pin interrupts and re-enable UART
+  //Disable pin interrupts and re-enable UART
 
   HAL_ENTER_ISR();
   //clear interrupt
