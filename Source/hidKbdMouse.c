@@ -68,6 +68,7 @@ Last modified:  8/10/2014
 
 #define COMMAND_MODE            0
 #define TRANSLATE_MODE          1
+#define COMMAND_DEBUG_MODE      2
 
 /*********************************************************************
 * CONSTANTS
@@ -98,7 +99,7 @@ Last modified:  8/10/2014
 #define DEFAULT_PASSCODE                      0
 
 // Default GAP pairing mode
-#define DEFAULT_PAIRING_MODE                  GAPBOND_PAIRING_MODE_INITIATE
+#define DEFAULT_PAIRING_MODE                  GAPBOND_PAIRING_MODE_WAIT_FOR_REQ
 
 // Default MITM mode (TRUE to require passcode or OOB when pairing)
 #define DEFAULT_MITM_MODE                     FALSE
@@ -108,8 +109,8 @@ Last modified:  8/10/2014
 
 // Default GAP bonding I/O capabilities
 
-//#define DEFAULT_IO_CAPABILITIES               GAPBOND_IO_CAP_KEYBOARD_ONLY
-#define DEFAULT_IO_CAPABILITIES               GAPBOND_IO_CAP_DISPLAY_ONLY
+#define DEFAULT_IO_CAPABILITIES               GAPBOND_IO_CAP_KEYBOARD_ONLY
+//#define DEFAULT_IO_CAPABILITIES               GAPBOND_IO_CAP_DISPLAY_ONLY
 
 // Battery level is critical when it is less than this %
 #define DEFAULT_BATT_CRITICAL_LEVEL           6
@@ -778,18 +779,20 @@ static void uartCallback(uint8 port, uint8 event) {
         if(strIndex == 3) {
           //printf("Testing for selection\r\n");
           if((modeSelStr[0] == '@') && (modeSelStr[1] == '@') && (modeSelStr[2] == '@')) {
-            //printf("CMD");
+            printf("CMD");
             mode = 0;
           } else if((modeSelStr[0] == '$') && (modeSelStr[1] == '$') && (modeSelStr[2] == '$')) {
-            //printf("TRANS");
+            printf("TRANSLATE");
             mode = 1;
+          } else if((modeSelStr[0] == '^') && (modeSelStr[1] == '^') && (modeSelStr[2] == '^')) {
+            print("DBG CMD");
+            mode = 2;
           }
           strIndex = 0;
           memset(modeSelStr, 0, 3);
           break; //stops filling buffer if a new mode is selected
         }
       } else {
-        //printf("Gallifrey Falls No More\r\n");
         memset(modeSelStr, 0, 3);
         strIndex = 0;
       }
@@ -805,8 +808,10 @@ static void uartCallback(uint8 port, uint8 event) {
           }
           break;
         }
-      } else {
+      } else if (mode == TRANSLATE_MODE) {
         sendKbdReportsWith(buf[i]);
+      } else if (mode == COMMAND_DEBUG_MODE) {
+        
       }
     }
 
@@ -850,7 +855,7 @@ static void processCommands(void) {
 
   if(rxBuffer[0] == 'K') { //keyboard commands
     if(rxBufferIndex == 3) {
-      //printf("Keyboard key press and release\r\n");
+      printf("Keyboard key press and release\r\n");
       if(rxBuffer[1] == 'U') {
         //Key released
         KBD_Report_RemoveKey(rxBuffer[2]);
@@ -859,17 +864,17 @@ static void processCommands(void) {
         KBD_Report_AddKey(rxBuffer[2]);
       }
     } else { //command as KS maybe, for Keyboard-report Send
-      //printf("Sending report...\r\n");
+      printf("Sending report...\r\n");
       KBD_Report_Update();
     }
   } else if(rxBuffer[0] == 'M') { //mouse commands
-    //printf("Mouse commands\r\n");
+    printf("Mouse commands\r\n");
     hidKbdMouseSendMouseReport(rxBuffer[1], rxBuffer[2], rxBuffer[3], rxBuffer[4]);
   } else if(rxBuffer[0] == 'S') { //setting commands
-    //printf("Setting commands\r\n");
+    printf("Setting commands\r\n");
     if((rxBuffer[1] == 'C') && (rxBuffer[2] == ',')) {
       //TO-DO: SET CONNECTION MODE
-      //printf("Connection modes\r\n");
+      printf("Connection modes\r\n");
     } else if((rxBuffer[1] == 'N') && (rxBuffer[2] == ',')) {
       uint8 i;
       uint8 deviceNewName[20];
@@ -889,7 +894,7 @@ static void processCommands(void) {
         osal_snv_write(SNV_ID_DEVICE_NAME, 20, deviceNewName);
         osal_snv_write(SNV_ID_DEVICE_NAME_LENGTH, 1, &deviceNewNameLength);
         osal_snv_write(SNV_ID_DEVICE_NAME_CRC, 1, &deviceNewNameCRC);
-        //        printf("Name is being set, reset to set new name\r\n");
+        printf("Name is being set, reset to set new name\r\n");
       }
     } else if((rxBuffer[1] == ',') && (rxBuffer[2] == 'R')) {
       //reset the device
@@ -897,11 +902,11 @@ static void processCommands(void) {
     } else if((rxBuffer[1] == ',') && (rxBuffer[2] == 'D')) {
       if(rxBuffer[3] == 'C') {
         //disconnect the device from host
-        //printf("Disconnecting from host...\r\n");
+        printf("Disconnecting from host...\r\n");
         GAPRole_TerminateConnection();
       } else {
         //set device to be discoverable
-        //printf("Set deveice to be discoverable\r\n");
+        printf("Set deveice to be discoverable\r\n");
       }
     } else if((rxBuffer[1] == ',') && (rxBuffer[2] == 'S')) {
       //enable sleep mode
@@ -925,6 +930,7 @@ static void performPeriodicTask(void) {
   //send a blank keyboard report to keep connection connected
   //  hidKbdMouseSendReport(0,hut5);
   hidKbdMouseSendReport(0,0);
+  printf("Hello World");
 }
 
 static void sleepMode(void) {
@@ -962,7 +968,6 @@ static void activeMode(void) {
   P1SEL |= (1 << 7); //select as peripheral pin
   (void)HalUARTOpen(HAL_UART_PORT_1, &uartConfig);
 #endif
-
   osal_pwrmgr_device( PWRMGR_ALWAYS_ON );
 }
 /*********************************************************************
