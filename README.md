@@ -1,3 +1,17 @@
+[![Maintenance](https://img.shields.io/maintenance/no/2015.svg)]()
+
+# Additions
+
+- Added a test Windows software to send mouse and keyboard commands
+
+# Known Problems
+
+- Unable to connect on Android devices 5.0+
+- GAP must be set to Display + intiated passcode method in order to connect on iOS devices
+- Mode switching starts after only 1 character is sent
+- Low power mode not configured
+- LED reports are not being received
+
 # Overview
 
 This is a firmware for Texas Instruments CC254x Bluetooth Low Energy microcontroller that sends
@@ -28,10 +42,8 @@ Pre-built firmwares are included as HEX files in the bin folder in CC2540DB and 
 **Features to be implemented**
 + Receive LED reports from host and send it over UART to external MCU
 
-The development for this project is potentially ceased. 
-
 # Setup
-This was developed with IAR Embedded Workbench for 8051 v8.30 and BLE-stack v1.4.0. It is not updated to the latest BLE-stack v1.4.1.
+This was developed with IAR Embedded Workbench for 8051 v9.20 and BLE-stack v1.4.2.
 
 To flash the firmware onto the chip, CC Debugger ($49) from Texas Instruments need to be used with 
 SmartRF Flash Programmer (free). Connection to HM-10 is as follows:
