@@ -306,7 +306,7 @@
           <state>DC_DC_P0_7</state>
           <state>GAP_CHAR_CFG_MAX=6</state>
           <state>HAL_UART=TRUE</state>
-          <state>HAL_UART_ISR=1</state>
+          <state>HAL_UART_ISR=2</state>
           <state>HAL_UART_DMA=FALSE</state>
         </option>
         <option>

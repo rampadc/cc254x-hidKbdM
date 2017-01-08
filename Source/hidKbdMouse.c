@@ -66,13 +66,13 @@ Last modified:  8/10/2014
 // HID mouse input report length
 #define HID_MOUSE_IN_RPT_LEN        5
 
-#define COMMAND_MODE            0
-#define TRANSLATE_MODE          1
-#define COMMAND_DEBUG_MODE      2
-
 /*********************************************************************
 * CONSTANTS
 */
+
+enum Modes {
+  command, translate, debug
+};
 
 // HID idle timeout in msec; set to zero to disable timeout
 #define DEFAULT_HID_IDLE_TIMEOUT              60000
@@ -102,7 +102,7 @@ Last modified:  8/10/2014
 #define DEFAULT_PAIRING_MODE                  GAPBOND_PAIRING_MODE_WAIT_FOR_REQ
 
 // Default MITM mode (TRUE to require passcode or OOB when pairing)
-#define DEFAULT_MITM_MODE                     FALSE
+#define DEFAULT_MITM_MODE                     TRUE
 
 // Default bonding mode, TRUE to bond
 #define DEFAULT_BONDING_MODE                  TRUE
@@ -436,11 +436,12 @@ void HidKbdMouse_Init( uint8 task_id )
   P2DIR = 0x1F; // All port 1 pins (P2.0-P2.4) as output
 
   P0 = 0x03; // All pins on port 0 to low except for P0.0 and P0.1 (buttons)
-  P1 = 0;   // All pins on port 1 to low
+  P1 = 0xFF;   // All pins on port 1 to high
   P2 = 0;   // All pins on port 2 to low
 
 #endif // #if defined( CC2540_MINIDK )
-
+  
+  // Turn on an LED
   //init keyboard report manager
   KBD_Report_Init();
 
@@ -711,7 +712,7 @@ uint8 rxBufferIndex = 0;
 uint8 *modeSelStr;
 uint8 strIndex = 0;
 
-uint8 mode = COMMAND_MODE;
+uint8 mode = command;
 
 static void setupUART(void) {
   HalUARTInit();
@@ -735,6 +736,8 @@ static void setupUART(void) {
 #else
   (void)HalUARTOpen(HAL_UART_PORT_1, &uartConfig);
 #endif
+  
+  printf("Started UART\r\n");
 
   //assumes there is no problem with getting these blocks of bytes
   rxBuffer = osal_mem_alloc(20); //expanded to handle name changes
@@ -785,7 +788,7 @@ static void uartCallback(uint8 port, uint8 event) {
             printf("TRANSLATE");
             mode = 1;
           } else if((modeSelStr[0] == '^') && (modeSelStr[1] == '^') && (modeSelStr[2] == '^')) {
-            print("DBG CMD");
+            printf("DBG CMD");
             mode = 2;
           }
           strIndex = 0;
@@ -797,7 +800,7 @@ static void uartCallback(uint8 port, uint8 event) {
         strIndex = 0;
       }
 
-      if(mode == COMMAND_MODE) {
+      if(mode == command) {
         //command mode is selected
         if((buf[i] != 0x0D) && (buf[i] != 0x0A)) {
           rxBuffer[rxBufferIndex++] = buf[i];
@@ -808,9 +811,9 @@ static void uartCallback(uint8 port, uint8 event) {
           }
           break;
         }
-      } else if (mode == TRANSLATE_MODE) {
+      } else if (mode == translate) {
         sendKbdReportsWith(buf[i]);
-      } else if (mode == COMMAND_DEBUG_MODE) {
+      } else if (mode == debug) {
         
       }
     }
@@ -870,6 +873,13 @@ static void processCommands(void) {
   } else if(rxBuffer[0] == 'M') { //mouse commands
     printf("Mouse commands\r\n");
     hidKbdMouseSendMouseReport(rxBuffer[1], rxBuffer[2], rxBuffer[3], rxBuffer[4]);
+  } else if(rxBuffer[0] == 'G') { // getting commands
+    printf("Get commands\r\n");
+    if (rxBuffer[1] == ',') {
+      if (rxBuffer[2] == 'M') {
+        printf(mode == command ? "CMD\r\n" : "TRANS\r\n");
+      }
+    }
   } else if(rxBuffer[0] == 'S') { //setting commands
     printf("Setting commands\r\n");
     if((rxBuffer[1] == 'C') && (rxBuffer[2] == ',')) {
