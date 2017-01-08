@@ -55,8 +55,8 @@ void main(void) {
 				P1OUT |= BIT0;
 				pressKey(hutSpacebar);
 
-				buildMouseReport();
-				sendMouseReport();
+//				buildMouseReport();
+//				sendMouseReport();
 			}
 		}
 		sendKbdReport();

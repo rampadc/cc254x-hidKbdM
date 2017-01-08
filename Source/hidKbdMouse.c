@@ -98,9 +98,6 @@ enum Modes {
 // Default passcode
 #define DEFAULT_PASSCODE                      0
 
-// Default GAP pairing mode
-#define DEFAULT_PAIRING_MODE                  GAPBOND_PAIRING_MODE_WAIT_FOR_REQ
-
 // Default MITM mode (TRUE to require passcode or OOB when pairing)
 #define DEFAULT_MITM_MODE                     TRUE
 
@@ -108,9 +105,12 @@ enum Modes {
 #define DEFAULT_BONDING_MODE                  TRUE
 
 // Default GAP bonding I/O capabilities
+// Default GAP pairing mode
+//#define DEFAULT_PAIRING_MODE                  GAPBOND_PAIRING_MODE_WAIT_FOR_REQ
+//#define DEFAULT_IO_CAPABILITIES               GAPBOND_IO_CAP_KEYBOARD_ONLY
 
-#define DEFAULT_IO_CAPABILITIES               GAPBOND_IO_CAP_KEYBOARD_ONLY
-//#define DEFAULT_IO_CAPABILITIES               GAPBOND_IO_CAP_DISPLAY_ONLY
+#define DEFAULT_PAIRING_MODE                  GAPBOND_PAIRING_MODE_INITIATE
+#define DEFAULT_IO_CAPABILITIES               GAPBOND_IO_CAP_DISPLAY_ONLY
 
 // Battery level is critical when it is less than this %
 #define DEFAULT_BATT_CRITICAL_LEVEL           6
@@ -712,7 +712,7 @@ uint8 rxBufferIndex = 0;
 uint8 *modeSelStr;
 uint8 strIndex = 0;
 
-uint8 mode = command;
+uint8 mode = translate;
 
 static void setupUART(void) {
   HalUARTInit();
@@ -782,14 +782,9 @@ static void uartCallback(uint8 port, uint8 event) {
         if(strIndex == 3) {
           //printf("Testing for selection\r\n");
           if((modeSelStr[0] == '@') && (modeSelStr[1] == '@') && (modeSelStr[2] == '@')) {
-            printf("CMD");
             mode = 0;
           } else if((modeSelStr[0] == '$') && (modeSelStr[1] == '$') && (modeSelStr[2] == '$')) {
-            printf("TRANSLATE");
             mode = 1;
-          } else if((modeSelStr[0] == '^') && (modeSelStr[1] == '^') && (modeSelStr[2] == '^')) {
-            printf("DBG CMD");
-            mode = 2;
           }
           strIndex = 0;
           memset(modeSelStr, 0, 3);
@@ -858,20 +853,29 @@ static void processCommands(void) {
 
   if(rxBuffer[0] == 'K') { //keyboard commands
     if(rxBufferIndex == 3) {
-      printf("Keyboard key press and release\r\n");
-      if(rxBuffer[1] == 'U') {
+      if (rxBuffers[1] == 'M' {
+        // Modifier
+        
+      } else if (rxBuffer[1] == 'S') {
+         KBD_Report_AddKey(rxBuffer[2]);
+         KBD_Report_Update();
+         KBD_Report_RemoveKey(rxBuffer[2]);
+         KBD_Report_Update();
+      } else if(rxBuffer[1] == 'U') {
         //Key released
+        printf("key released\r\n");
         KBD_Report_RemoveKey(rxBuffer[2]);
       } else if(rxBuffer[1] == 'D') {
         //Key pressed
+        printf("key pressed\r\n");
         KBD_Report_AddKey(rxBuffer[2]);
       }
-    } else { //command as KS maybe, for Keyboard-report Send
-      printf("Sending report...\r\n");
+    } else { //command as KUPDATE
+      printf("Sending report\r\n");
       KBD_Report_Update();
     }
   } else if(rxBuffer[0] == 'M') { //mouse commands
-    printf("Mouse commands\r\n");
+    //printf("Mouse commands\r\n");
     hidKbdMouseSendMouseReport(rxBuffer[1], rxBuffer[2], rxBuffer[3], rxBuffer[4]);
   } else if(rxBuffer[0] == 'G') { // getting commands
     printf("Get commands\r\n");
@@ -940,7 +944,7 @@ static void performPeriodicTask(void) {
   //send a blank keyboard report to keep connection connected
   //  hidKbdMouseSendReport(0,hut5);
   hidKbdMouseSendReport(0,0);
-  printf("Hello World");
+  printf("Keep Alive\r\n");
 }
 
 static void sleepMode(void) {
