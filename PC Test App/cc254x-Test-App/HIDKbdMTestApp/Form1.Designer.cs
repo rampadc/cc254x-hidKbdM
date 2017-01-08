@@ -70,10 +70,10 @@
             this.label2 = new System.Windows.Forms.Label();
             this.commLogTextBox = new System.Windows.Forms.TextBox();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.button1 = new System.Windows.Forms.Button();
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
+            this.cmd_settings_devNameButton = new System.Windows.Forms.Button();
+            this.cmd_settings_devNameTextBox = new System.Windows.Forms.TextBox();
+            this.cmd_settings_resetButton = new System.Windows.Forms.Button();
+            this.cmd_settings_disconnectButton = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
             this.button5 = new System.Windows.Forms.Button();
             this.modesTabControl.SuspendLayout();
@@ -422,10 +422,10 @@
             // 
             this.tabPage5.Controls.Add(this.button5);
             this.tabPage5.Controls.Add(this.button4);
-            this.tabPage5.Controls.Add(this.button3);
-            this.tabPage5.Controls.Add(this.button2);
-            this.tabPage5.Controls.Add(this.textBox1);
-            this.tabPage5.Controls.Add(this.button1);
+            this.tabPage5.Controls.Add(this.cmd_settings_disconnectButton);
+            this.tabPage5.Controls.Add(this.cmd_settings_resetButton);
+            this.tabPage5.Controls.Add(this.cmd_settings_devNameTextBox);
+            this.tabPage5.Controls.Add(this.cmd_settings_devNameButton);
             this.tabPage5.Location = new System.Drawing.Point(4, 22);
             this.tabPage5.Name = "tabPage5";
             this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
@@ -499,40 +499,43 @@
             this.contextMenuStrip1.Name = "contextMenuStrip1";
             this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
             // 
-            // button1
+            // cmd_settings_devNameButton
             // 
-            this.button1.Location = new System.Drawing.Point(6, 6);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "Set name";
-            this.button1.UseVisualStyleBackColor = true;
+            this.cmd_settings_devNameButton.Location = new System.Drawing.Point(6, 6);
+            this.cmd_settings_devNameButton.Name = "cmd_settings_devNameButton";
+            this.cmd_settings_devNameButton.Size = new System.Drawing.Size(75, 23);
+            this.cmd_settings_devNameButton.TabIndex = 0;
+            this.cmd_settings_devNameButton.Text = "Set name";
+            this.cmd_settings_devNameButton.UseVisualStyleBackColor = true;
+            this.cmd_settings_devNameButton.Click += new System.EventHandler(this.cmd_settings_devNameButton_Click);
             // 
-            // textBox1
+            // cmd_settings_devNameTextBox
             // 
-            this.textBox1.Location = new System.Drawing.Point(87, 8);
-            this.textBox1.MaxLength = 20;
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(138, 20);
-            this.textBox1.TabIndex = 1;
+            this.cmd_settings_devNameTextBox.Location = new System.Drawing.Point(87, 8);
+            this.cmd_settings_devNameTextBox.MaxLength = 20;
+            this.cmd_settings_devNameTextBox.Name = "cmd_settings_devNameTextBox";
+            this.cmd_settings_devNameTextBox.Size = new System.Drawing.Size(138, 20);
+            this.cmd_settings_devNameTextBox.TabIndex = 1;
             // 
-            // button2
+            // cmd_settings_resetButton
             // 
-            this.button2.Location = new System.Drawing.Point(7, 36);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(75, 23);
-            this.button2.TabIndex = 2;
-            this.button2.Text = "Reset";
-            this.button2.UseVisualStyleBackColor = true;
+            this.cmd_settings_resetButton.Location = new System.Drawing.Point(7, 36);
+            this.cmd_settings_resetButton.Name = "cmd_settings_resetButton";
+            this.cmd_settings_resetButton.Size = new System.Drawing.Size(75, 23);
+            this.cmd_settings_resetButton.TabIndex = 2;
+            this.cmd_settings_resetButton.Text = "Reset";
+            this.cmd_settings_resetButton.UseVisualStyleBackColor = true;
+            this.cmd_settings_resetButton.Click += new System.EventHandler(this.cmd_settings_resetButton_Click);
             // 
-            // button3
+            // cmd_settings_disconnectButton
             // 
-            this.button3.Location = new System.Drawing.Point(7, 66);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(128, 23);
-            this.button3.TabIndex = 3;
-            this.button3.Text = "Disconnect from host";
-            this.button3.UseVisualStyleBackColor = true;
+            this.cmd_settings_disconnectButton.Location = new System.Drawing.Point(7, 66);
+            this.cmd_settings_disconnectButton.Name = "cmd_settings_disconnectButton";
+            this.cmd_settings_disconnectButton.Size = new System.Drawing.Size(128, 23);
+            this.cmd_settings_disconnectButton.TabIndex = 3;
+            this.cmd_settings_disconnectButton.Text = "Disconnect from host";
+            this.cmd_settings_disconnectButton.UseVisualStyleBackColor = true;
+            this.cmd_settings_disconnectButton.Click += new System.EventHandler(this.cmd_settings_disconnectButton_Click);
             // 
             // button4
             // 
@@ -629,10 +632,10 @@
         private System.Windows.Forms.Label label17;
         private System.Windows.Forms.Button button5;
         private System.Windows.Forms.Button button4;
-        private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button cmd_settings_disconnectButton;
+        private System.Windows.Forms.Button cmd_settings_resetButton;
+        private System.Windows.Forms.TextBox cmd_settings_devNameTextBox;
+        private System.Windows.Forms.Button cmd_settings_devNameButton;
     }
 }
 

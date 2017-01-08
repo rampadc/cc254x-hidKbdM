@@ -106,11 +106,11 @@ enum Modes {
 
 // Default GAP bonding I/O capabilities
 // Default GAP pairing mode
-//#define DEFAULT_PAIRING_MODE                  GAPBOND_PAIRING_MODE_WAIT_FOR_REQ
-//#define DEFAULT_IO_CAPABILITIES               GAPBOND_IO_CAP_KEYBOARD_ONLY
+#define DEFAULT_PAIRING_MODE                  GAPBOND_PAIRING_MODE_WAIT_FOR_REQ
+#define DEFAULT_IO_CAPABILITIES               GAPBOND_IO_CAP_KEYBOARD_ONLY
 
-#define DEFAULT_PAIRING_MODE                  GAPBOND_PAIRING_MODE_INITIATE
-#define DEFAULT_IO_CAPABILITIES               GAPBOND_IO_CAP_DISPLAY_ONLY
+//#define DEFAULT_PAIRING_MODE                  GAPBOND_PAIRING_MODE_INITIATE
+//#define DEFAULT_IO_CAPABILITIES               GAPBOND_IO_CAP_DISPLAY_ONLY
 
 // Battery level is critical when it is less than this %
 #define DEFAULT_BATT_CRITICAL_LEVEL           6
@@ -737,7 +737,7 @@ static void setupUART(void) {
   (void)HalUARTOpen(HAL_UART_PORT_1, &uartConfig);
 #endif
   
-  printf("Started UART\r\n");
+  //printf("Started UART\r\n");
 
   //assumes there is no problem with getting these blocks of bytes
   rxBuffer = osal_mem_alloc(20); //expanded to handle name changes
@@ -853,7 +853,7 @@ static void processCommands(void) {
 
   if(rxBuffer[0] == 'K') { //keyboard commands
     if(rxBufferIndex == 3) {
-      if (rxBuffers[1] == 'M' {
+      if (rxBuffer[1] == 'M') {
         // Modifier
         
       } else if (rxBuffer[1] == 'S') {
@@ -944,7 +944,7 @@ static void performPeriodicTask(void) {
   //send a blank keyboard report to keep connection connected
   //  hidKbdMouseSendReport(0,hut5);
   hidKbdMouseSendReport(0,0);
-  printf("Keep Alive\r\n");
+  //printf("Keep Alive\r\n");
 }
 
 static void sleepMode(void) {

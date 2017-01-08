@@ -262,5 +262,23 @@ namespace HidKbdMTestApp
             serialPort.Write(mouseReport, 0, mouseReport.Length);
             serialPort.Write("\r\n");
         }
+
+        private void cmd_settings_disconnectButton_Click(object sender, EventArgs e)
+        {
+            commLogTextBox.Text += "S,DC\r\n";
+            serialPort.WriteLine("S,DC");
+        }
+
+        private void cmd_settings_resetButton_Click(object sender, EventArgs e)
+        {
+            commLogTextBox.Text += "S,R\r\n";
+            serialPort.WriteLine("S,R");
+        }
+
+        private void cmd_settings_devNameButton_Click(object sender, EventArgs e)
+        {
+            //commLogTextBox.Text += "SN,r\n";
+            //serialPort.WriteLine("SN,");
+        }
     }
 }
