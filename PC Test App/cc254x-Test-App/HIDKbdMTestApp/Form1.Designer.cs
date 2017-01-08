@@ -39,6 +39,10 @@
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage3 = new System.Windows.Forms.TabPage();
+            this.label5 = new System.Windows.Forms.Label();
+            this.label17 = new System.Windows.Forms.Label();
+            this.linkLabel1 = new System.Windows.Forms.LinkLabel();
+            this.label6 = new System.Windows.Forms.Label();
             this.cmd_keyUpdateButton = new System.Windows.Forms.Button();
             this.cmd_keyUpButton = new System.Windows.Forms.Button();
             this.cmd_keyDownButton = new System.Windows.Forms.Button();
@@ -66,16 +70,19 @@
             this.label2 = new System.Windows.Forms.Label();
             this.commLogTextBox = new System.Windows.Forms.TextBox();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.label6 = new System.Windows.Forms.Label();
-            this.linkLabel1 = new System.Windows.Forms.LinkLabel();
-            this.label17 = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
+            this.button1 = new System.Windows.Forms.Button();
+            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.button2 = new System.Windows.Forms.Button();
+            this.button3 = new System.Windows.Forms.Button();
+            this.button4 = new System.Windows.Forms.Button();
+            this.button5 = new System.Windows.Forms.Button();
             this.modesTabControl.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage3.SuspendLayout();
             this.tabPage4.SuspendLayout();
             this.panel1.SuspendLayout();
+            this.tabPage5.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -187,6 +194,44 @@
             this.tabPage3.TabIndex = 0;
             this.tabPage3.Text = "Keyboard";
             this.tabPage3.UseVisualStyleBackColor = true;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(12, 74);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(121, 13);
+            this.label5.TabIndex = 17;
+            this.label5.Text = "(using same field above)";
+            // 
+            // label17
+            // 
+            this.label17.AutoSize = true;
+            this.label17.Location = new System.Drawing.Point(136, 15);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(116, 13);
+            this.label17.TabIndex = 16;
+            this.label17.Text = "(press ENTER to send)";
+            // 
+            // linkLabel1
+            // 
+            this.linkLabel1.AutoSize = true;
+            this.linkLabel1.Location = new System.Drawing.Point(9, 211);
+            this.linkLabel1.Name = "linkLabel1";
+            this.linkLabel1.Size = new System.Drawing.Size(121, 13);
+            this.linkLabel1.TabIndex = 15;
+            this.linkLabel1.TabStop = true;
+            this.linkLabel1.Text = "HID HUT Table (pg. 53)";
+            this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(6, 198);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(246, 13);
+            this.label6.TabIndex = 14;
+            this.label6.Text = "Textbox must be entered with hex with left padding";
             // 
             // cmd_keyUpdateButton
             // 
@@ -375,6 +420,12 @@
             // 
             // tabPage5
             // 
+            this.tabPage5.Controls.Add(this.button5);
+            this.tabPage5.Controls.Add(this.button4);
+            this.tabPage5.Controls.Add(this.button3);
+            this.tabPage5.Controls.Add(this.button2);
+            this.tabPage5.Controls.Add(this.textBox1);
+            this.tabPage5.Controls.Add(this.button1);
             this.tabPage5.Location = new System.Drawing.Point(4, 22);
             this.tabPage5.Name = "tabPage5";
             this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
@@ -448,43 +499,58 @@
             this.contextMenuStrip1.Name = "contextMenuStrip1";
             this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
             // 
-            // label6
+            // button1
             // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(6, 198);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(246, 13);
-            this.label6.TabIndex = 14;
-            this.label6.Text = "Textbox must be entered with hex with left padding";
+            this.button1.Location = new System.Drawing.Point(6, 6);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 0;
+            this.button1.Text = "Set name";
+            this.button1.UseVisualStyleBackColor = true;
             // 
-            // linkLabel1
+            // textBox1
             // 
-            this.linkLabel1.AutoSize = true;
-            this.linkLabel1.Location = new System.Drawing.Point(9, 211);
-            this.linkLabel1.Name = "linkLabel1";
-            this.linkLabel1.Size = new System.Drawing.Size(121, 13);
-            this.linkLabel1.TabIndex = 15;
-            this.linkLabel1.TabStop = true;
-            this.linkLabel1.Text = "HID HUT Table (pg. 53)";
-            this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
+            this.textBox1.Location = new System.Drawing.Point(87, 8);
+            this.textBox1.MaxLength = 20;
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(138, 20);
+            this.textBox1.TabIndex = 1;
             // 
-            // label17
+            // button2
             // 
-            this.label17.AutoSize = true;
-            this.label17.Location = new System.Drawing.Point(136, 15);
-            this.label17.Name = "label17";
-            this.label17.Size = new System.Drawing.Size(116, 13);
-            this.label17.TabIndex = 16;
-            this.label17.Text = "(press ENTER to send)";
+            this.button2.Location = new System.Drawing.Point(7, 36);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(75, 23);
+            this.button2.TabIndex = 2;
+            this.button2.Text = "Reset";
+            this.button2.UseVisualStyleBackColor = true;
             // 
-            // label5
+            // button3
             // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(12, 74);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(121, 13);
-            this.label5.TabIndex = 17;
-            this.label5.Text = "(using same field above)";
+            this.button3.Location = new System.Drawing.Point(7, 66);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(128, 23);
+            this.button3.TabIndex = 3;
+            this.button3.Text = "Disconnect from host";
+            this.button3.UseVisualStyleBackColor = true;
+            // 
+            // button4
+            // 
+            this.button4.Location = new System.Drawing.Point(7, 96);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(75, 23);
+            this.button4.TabIndex = 4;
+            this.button4.Text = "Sleep";
+            this.button4.UseVisualStyleBackColor = true;
+            // 
+            // button5
+            // 
+            this.button5.Location = new System.Drawing.Point(7, 126);
+            this.button5.Name = "button5";
+            this.button5.Size = new System.Drawing.Size(75, 23);
+            this.button5.TabIndex = 5;
+            this.button5.Text = "Wake up";
+            this.button5.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
@@ -510,6 +576,8 @@
             this.tabPage4.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            this.tabPage5.ResumeLayout(false);
+            this.tabPage5.PerformLayout();
             this.tabPage2.ResumeLayout(false);
             this.tabPage2.PerformLayout();
             this.ResumeLayout(false);
@@ -559,6 +627,12 @@
         private System.Windows.Forms.LinkLabel linkLabel1;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label17;
+        private System.Windows.Forms.Button button5;
+        private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Button button1;
     }
 }
 
