@@ -106,11 +106,11 @@ enum Modes {
 
 // Default GAP bonding I/O capabilities
 // Default GAP pairing mode
-//#define DEFAULT_PAIRING_MODE                  GAPBOND_PAIRING_MODE_WAIT_FOR_REQ
-//#define DEFAULT_IO_CAPABILITIES               GAPBOND_IO_CAP_KEYBOARD_ONLY
+#define DEFAULT_PAIRING_MODE                  GAPBOND_PAIRING_MODE_WAIT_FOR_REQ
+#define DEFAULT_IO_CAPABILITIES               GAPBOND_IO_CAP_KEYBOARD_ONLY
 
-#define DEFAULT_PAIRING_MODE                  GAPBOND_PAIRING_MODE_INITIATE
-#define DEFAULT_IO_CAPABILITIES               GAPBOND_IO_CAP_KEYBOARD_DISPLAY
+//#define DEFAULT_PAIRING_MODE                  GAPBOND_PAIRING_MODE_INITIATE
+//#define DEFAULT_IO_CAPABILITIES               GAPBOND_IO_CAP_KEYBOARD_DISPLAY
 
 // Battery level is critical when it is less than this %
 #define DEFAULT_BATT_CRITICAL_LEVEL           6
