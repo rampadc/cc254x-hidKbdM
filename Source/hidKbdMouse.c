@@ -99,7 +99,7 @@ enum Modes {
 #define DEFAULT_PASSCODE                      0
 
 // Default MITM mode (TRUE to require passcode or OOB when pairing)
-#define DEFAULT_MITM_MODE                     TRUE
+#define DEFAULT_MITM_MODE                     FALSE
 
 // Default bonding mode, TRUE to bond
 #define DEFAULT_BONDING_MODE                  TRUE
@@ -107,7 +107,7 @@ enum Modes {
 // Default GAP bonding I/O capabilities
 // Default GAP pairing mode
 #define DEFAULT_PAIRING_MODE                  GAPBOND_PAIRING_MODE_WAIT_FOR_REQ
-#define DEFAULT_IO_CAPABILITIES               GAPBOND_IO_CAP_KEYBOARD_ONLY
+#define DEFAULT_IO_CAPABILITIES               GAPBOND_IO_CAP_NO_INPUT_NO_OUTPUT
 
 //#define DEFAULT_PAIRING_MODE                  GAPBOND_PAIRING_MODE_INITIATE
 //#define DEFAULT_IO_CAPABILITIES               GAPBOND_IO_CAP_KEYBOARD_DISPLAY
