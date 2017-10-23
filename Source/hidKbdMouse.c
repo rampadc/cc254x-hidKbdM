@@ -785,9 +785,11 @@ static void uartCallback(uint8 port, uint8 event) {
         if(strIndex == 3) {
           //printf("Testing for selection\r\n");
           if((modeSelStr[0] == '@') && (modeSelStr[1] == '@') && (modeSelStr[2] == '@')) {
-            mode = 0;
+            printf("command mode\r\n");
+            mode = command;
           } else if((modeSelStr[0] == '$') && (modeSelStr[1] == '$') && (modeSelStr[2] == '$')) {
-            mode = 1;
+            printf("translate mode\r\n");
+            mode = translate;
           }
           strIndex = 0;
           memset(modeSelStr, 0, 3);
@@ -889,7 +891,6 @@ static void processCommands(void) {
       }
     }
   } else if(rxBuffer[0] == 'S') { //setting commands
-    printf("Setting commands\r\n");
     if((rxBuffer[1] == 'C') && (rxBuffer[2] == ',')) {
       //TO-DO: SET CONNECTION MODE
       printf("Connection modes\r\n");
@@ -916,8 +917,9 @@ static void processCommands(void) {
       }
     } else if((rxBuffer[1] == ',') && (rxBuffer[2] == 'R')) {
       //reset the device
+      printf("reset\r\n");
       HAL_SYSTEM_RESET();
-    } else if((rxBuffer[1] == ',') && (rxBuffer[2] == 'I') && (rxBuffer[2] == 'D')) {
+    } else if((rxBuffer[1] == ',') && (rxBuffer[2] == 'I') && (rxBuffer[3] == 'D')) {
       //print ID
       printf(VERSION_STRING);
     } else if((rxBuffer[1] == ',') && (rxBuffer[2] == 'D')) {
