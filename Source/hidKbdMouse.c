@@ -849,6 +849,7 @@ Command sets, chosen options need to be stored in non-volatile memory
 + <value> device's new name
 - S,R Reset the device
 - S,ID print ID of module
+- S,N print the current Bluetooth name
 - S,D Set device to be discoverable
 - S,DC  Disconnect device from host
 */
@@ -922,6 +923,9 @@ static void processCommands(void) {
     } else if((rxBuffer[1] == ',') && (rxBuffer[2] == 'I') && (rxBuffer[3] == 'D')) {
       //print ID
       printf(VERSION_STRING);
+    } else if((rxBuffer[1] == ',') && (rxBuffer[2] == 'N')) {
+      //print Bluetooth name
+      printf("%s\r\n",device_name); 
     } else if((rxBuffer[1] == ',') && (rxBuffer[2] == 'D')) {
       if(rxBuffer[3] == 'C') {
         //disconnect the device from host
