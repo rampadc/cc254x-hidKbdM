@@ -44,6 +44,9 @@ Last modified:  8/10/2014
 * MACROS
 */
 
+//version string to identify module/capabilities
+#define VERSION_STRING "hidkbdmousev1\r\n"
+
 //UART testing
 #define SBP_PERIODIC_EVT_PERIOD         50
 #define KEEP_CONNECTION_ALIVE_50s       50000
@@ -843,6 +846,7 @@ Command sets, chosen options need to be stored in non-volatile memory
 - SN,<value>  + set device name
 + <value> device's new name
 - S,R Reset the device
+- S,ID print ID of module
 - S,D Set device to be discoverable
 - S,DC  Disconnect device from host
 */
@@ -913,6 +917,9 @@ static void processCommands(void) {
     } else if((rxBuffer[1] == ',') && (rxBuffer[2] == 'R')) {
       //reset the device
       HAL_SYSTEM_RESET();
+    } else if((rxBuffer[1] == ',') && (rxBuffer[2] == 'I') && (rxBuffer[2] == 'D')) {
+      //print ID
+      printf(VERSION_STRING);
     } else if((rxBuffer[1] == ',') && (rxBuffer[2] == 'D')) {
       if(rxBuffer[3] == 'C') {
         //disconnect the device from host
