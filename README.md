@@ -1,4 +1,8 @@
-[![Maintenance](https://img.shields.io/maintenance/no/2015.svg)]()
+# Modifications in this repository
+
+- fixed the Android 5 issue, by changing the bonding parameters
+
+All the text below is cloned from the previous repository.
 
 # Additions
 
@@ -6,7 +10,6 @@
 
 # Known Problems
 
-- Unable to connect on Android devices 5.0+
 - GAP must be set to Display + intiated passcode method in order to connect on iOS devices
 - Mode switching starts after only 1 character is sent
 - Low power mode not configured
@@ -63,8 +66,16 @@ not included in the project as the license agreement does not allow this.
 
 ![](https://flashandrc.files.wordpress.com/2014/10/folder-struct.png)
 
+# IAR?
+
+I cannot believe people are spending so much money on an IDE like this,
+IAR is simply the worst available IDE/compiler, even AVR Studio 4 was better.
+
+@TI: Why do you don't want to support sdcc???
+
 # License
 
+Copyright 2017 Benjamin Aigner
 Copyright 2014 Cong Nguyen
 
 Licensed under the Apache License, Version 2.0 (the "License");

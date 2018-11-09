@@ -44,6 +44,9 @@ Last modified:  8/10/2014
 * MACROS
 */
 
+//version string to identify module/capabilities
+#define VERSION_STRING "hidkbdmousev1\r\n"
+
 //UART testing
 #define SBP_PERIODIC_EVT_PERIOD         50
 #define KEEP_CONNECTION_ALIVE_50s       50000
@@ -99,7 +102,7 @@ enum Modes {
 #define DEFAULT_PASSCODE                      0
 
 // Default MITM mode (TRUE to require passcode or OOB when pairing)
-#define DEFAULT_MITM_MODE                     TRUE
+#define DEFAULT_MITM_MODE                     FALSE
 
 // Default bonding mode, TRUE to bond
 #define DEFAULT_BONDING_MODE                  TRUE
@@ -107,7 +110,7 @@ enum Modes {
 // Default GAP bonding I/O capabilities
 // Default GAP pairing mode
 #define DEFAULT_PAIRING_MODE                  GAPBOND_PAIRING_MODE_WAIT_FOR_REQ
-#define DEFAULT_IO_CAPABILITIES               GAPBOND_IO_CAP_KEYBOARD_ONLY
+#define DEFAULT_IO_CAPABILITIES               GAPBOND_IO_CAP_NO_INPUT_NO_OUTPUT
 
 //#define DEFAULT_PAIRING_MODE                  GAPBOND_PAIRING_MODE_INITIATE
 //#define DEFAULT_IO_CAPABILITIES               GAPBOND_IO_CAP_KEYBOARD_DISPLAY
@@ -782,9 +785,11 @@ static void uartCallback(uint8 port, uint8 event) {
         if(strIndex == 3) {
           //printf("Testing for selection\r\n");
           if((modeSelStr[0] == '@') && (modeSelStr[1] == '@') && (modeSelStr[2] == '@')) {
-            mode = 0;
+            printf("command mode\r\n");
+            mode = command;
           } else if((modeSelStr[0] == '$') && (modeSelStr[1] == '$') && (modeSelStr[2] == '$')) {
-            mode = 1;
+            printf("translate mode\r\n");
+            mode = translate;
           }
           strIndex = 0;
           memset(modeSelStr, 0, 3);
@@ -843,6 +848,8 @@ Command sets, chosen options need to be stored in non-volatile memory
 - SN,<value>  + set device name
 + <value> device's new name
 - S,R Reset the device
+- S,ID print ID of module
+- S,N print the current Bluetooth name
 - S,D Set device to be discoverable
 - S,DC  Disconnect device from host
 */
@@ -885,7 +892,6 @@ static void processCommands(void) {
       }
     }
   } else if(rxBuffer[0] == 'S') { //setting commands
-    printf("Setting commands\r\n");
     if((rxBuffer[1] == 'C') && (rxBuffer[2] == ',')) {
       //TO-DO: SET CONNECTION MODE
       printf("Connection modes\r\n");
@@ -912,7 +918,14 @@ static void processCommands(void) {
       }
     } else if((rxBuffer[1] == ',') && (rxBuffer[2] == 'R')) {
       //reset the device
+      printf("reset\r\n");
       HAL_SYSTEM_RESET();
+    } else if((rxBuffer[1] == ',') && (rxBuffer[2] == 'I') && (rxBuffer[3] == 'D')) {
+      //print ID
+      printf(VERSION_STRING);
+    } else if((rxBuffer[1] == ',') && (rxBuffer[2] == 'N')) {
+      //print Bluetooth name
+      printf("%s\r\n",device_name); 
     } else if((rxBuffer[1] == ',') && (rxBuffer[2] == 'D')) {
       if(rxBuffer[3] == 'C') {
         //disconnect the device from host
