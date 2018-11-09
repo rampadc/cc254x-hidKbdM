@@ -1,9 +1,3 @@
-# Modifications in this repository
-
-- fixed the Android 5 issue, by changing the bonding parameters
-
-All the text below is cloned from the previous repository.
-
 # Additions
 
 - Added a test Windows software to send mouse and keyboard commands
