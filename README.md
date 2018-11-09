@@ -45,27 +45,20 @@ This was developed with IAR Embedded Workbench for 8051 v9.20 and BLE-stack v1.4
 To flash the firmware onto the chip, CC Debugger ($49) from Texas Instruments need to be used with 
 SmartRF Flash Programmer (free). Connection to HM-10 is as follows:
 
-![](https://flashandrc.files.wordpress.com/2014/08/connection.png)
+![](https://archiveworthy.files.wordpress.com/2014/08/connection.png)
 
 To customize the firmare, IAR Embedded Workspace for 8051 is needed. You may want to add:
     #include "bcomdef.h"
     #include "gatt.h"
 into hiddev.h to correct some compilation errors, as shown in the photo below:
 
-![](https://flashandrc.files.wordpress.com/2014/10/hiddev_adding_includes.png)
+![](https://archiveworthy.files.wordpress.com/2014/10/hiddev_adding_includes.png)
 
 The source code included needs to be copied into a folder created inside TI's official BLE API 1.4's
 Project folder as the INCLUDES defined in the Preprocessor are set up for this. The official API was 
 not included in the project as the license agreement does not allow this.
 
-![](https://flashandrc.files.wordpress.com/2014/10/folder-struct.png)
-
-# IAR?
-
-I cannot believe people are spending so much money on an IDE like this,
-IAR is simply the worst available IDE/compiler, even AVR Studio 4 was better.
-
-@TI: Why do you don't want to support sdcc???
+![](https://archiveworthy.files.wordpress.com/2014/10/folder-struct.png)
 
 # License
 
