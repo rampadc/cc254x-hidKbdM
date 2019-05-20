@@ -1,3 +1,5 @@
+![](https://img.shields.io/maintenance/no/2018.svg)
+
 # Additions
 
 - Added a test Windows software to send mouse and keyboard commands
